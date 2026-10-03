@@ -10,7 +10,11 @@ uv run pytest
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy packages/neuroforge/src services/api/src
+pnpm --dir apps/web install
+pnpm --dir apps/web test
 ```
+
+The atlas UI lives in `apps/web` (Vite, React, React Three Fiber). `pnpm --dir apps/web dev` proxies `/api` to the registry on port 8000.
 
 Tests are offline. Do not add a test that downloads BCI, DANDI, or OpenNeuro data.
 

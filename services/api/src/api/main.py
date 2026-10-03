@@ -6,20 +6,10 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from api.pages import (
-    render_algo_json,
-    render_algorithms,
-    render_atlas,
-    render_datasets,
-    render_models,
-    render_roadmap,
-    render_tabs,
-    render_train,
-)
 from api.search import reciprocal_rank_fusion
 from neuroforge.registry import (
     DatasetCard,
@@ -50,11 +40,45 @@ def _param_count(slug: str) -> int:
     return sum(parameter.numel() for parameter in model.parameters())
 
 
+_FALLBACK = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NeuroForge</title>
+</head>
+<body>
+  <p>NeuroForge</p>
+  <h1>The atlas is a React app.</h1>
+  <p>Build <code>apps/web</code> and reload this page. The registry API is already serving.</p>
+  <pre><code>pnpm --dir apps/web install
+pnpm --dir apps/web build</code></pre>
+  <p><a href="/docs">API docs</a></p>
+</body>
+</html>
+"""
+
+
+def _web_dist() -> Path | None:
+    candidates = [Path.cwd() / "apps" / "web" / "dist"]
+    source = Path(__file__).resolve()
+    if len(source.parents) > 4:
+        candidates.append(source.parents[4] / "apps" / "web" / "dist")
+    for path in candidates:
+        if (path / "index.html").is_file():
+            return path
+    return None
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="NeuroForge", version="0.1.0")
-    root = Path(__file__).parent
-    template = (root / "templates" / "index.html").read_text(encoding="utf-8")
-    app.mount("/static", StaticFiles(directory=root / "static"), name="static")
+    dist = _web_dist()
+    if dist is not None and (dist / "assets").is_dir():
+        app.mount("/assets", StaticFiles(directory=dist / "assets"), name="web-assets")
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon() -> Response:
+        return Response(status_code=204)
 
     @app.get("/healthz")
     def healthz() -> dict[str, str]:
@@ -177,18 +201,12 @@ def create_app() -> FastAPI:
             hits.sort(key=lambda hit: order.get(hit.slug, 10_000))
         return hits
 
-    @app.get("/", response_class=HTMLResponse)
-    def home() -> str:
-        atlas = load_fields()
-        algorithms = load_algorithms()
-        page = template.replace("<!--TABS-->", render_tabs(atlas))
-        page = page.replace("<!--ALGO_JSON-->", render_algo_json(algorithms))
-        page = page.replace("<!--ROADMAP-->", render_roadmap())
-        page = page.replace("<!--ALGORITHMS-->", render_algorithms(algorithms))
-        page = page.replace("<!--DATASETS-->", render_datasets(atlas))
-        page = page.replace("<!--TRAIN-->", render_train())
-        page = page.replace("<!--ATLAS-->", render_atlas(atlas))
-        return page.replace("<!--CARDS-->", render_models(load_model_cards()))
+    @app.get("/", response_model=None)
+    def home() -> FileResponse | HTMLResponse:
+        built = _web_dist()
+        if built is not None:
+            return FileResponse(built / "index.html")
+        return HTMLResponse(_FALLBACK)
 
     return app
 
