@@ -1,3 +1,6 @@
+import type { PartLearn } from "../learn";
+import { LEARN } from "../learn";
+
 export interface PartStep {
   title: string;
   body: string;
@@ -11,6 +14,7 @@ export interface HeadPart {
   what: string;
   signal: string;
   steps: readonly PartStep[];
+  learn: PartLearn;
 }
 
 export const HEAD_PARTS: readonly HeadPart[] = [
@@ -32,9 +36,14 @@ export const HEAD_PARTS: readonly HeadPart[] = [
       },
       {
         title: "What a model can use",
-        body: "Rhythms and spatial patterns. CSP and EEG-Conformer are built for that sum, not for one neuron.",
+        body: "Rhythms and spatial patterns. CSP and EEG-Conformer are built for that sum, not for one neuron. The tensor is trials, channels, samples.",
       },
     ],
+    learn: {
+      video: LEARN.eegVideo,
+      watchNote: "The clip is the sum a scalp electrode hears. Nothing is implanted.",
+      sources: [LEARN.eegVideo, LEARN.moabb, LEARN.moabbPaper, LEARN.eegnet, LEARN.csp],
+    },
   },
   {
     slug: "skull",
@@ -54,9 +63,14 @@ export const HEAD_PARTS: readonly HeadPart[] = [
       },
       {
         title: "Why the two recordings differ",
-        body: "An electrode outside the bone hears that spread field. An electrode under the bone hears a smaller patch of cortex.",
+        body: "An electrode outside the bone hears that spread field. An electrode under the bone hears a smaller patch of cortex. Distance, not a different kind of electricity, is the difference.",
       },
     ],
+    learn: {
+      watchNote:
+        "There is no separate skull video. The EEG clip on Scalp is the rhythm that survived this bone. The review below is the source for that claim.",
+      sources: [LEARN.buzsaki, LEARN.eegVideo],
+    },
   },
   {
     slug: "cortex",
@@ -76,9 +90,14 @@ export const HEAD_PARTS: readonly HeadPart[] = [
       },
       {
         title: "Where each electrode aims",
-        body: "A film lies on the gyri. Needles and threads end a short distance in. A stent listens from a vein along the top, through the vessel wall.",
+        body: "A film lies on the gyri. Needles and threads end a short distance in. A stent listens from a vein along the top, through the vessel wall. Open those cards for the count and the paper.",
       },
     ],
+    learn: {
+      video: LEARN.cortexVideo,
+      watchNote: "The clip names gyri and sulci. It does not label the folds on this mesh.",
+      sources: [LEARN.cortexVideo, LEARN.openneuro, LEARN.openneuroDoi, LEARN.freesurfer],
+    },
   },
 ];
 
@@ -100,6 +119,7 @@ export interface InterfaceModel {
   linkLabel: string;
   status: string;
   steps: readonly PartStep[];
+  learn: PartLearn;
 }
 
 export const INTERFACES: readonly InterfaceModel[] = [
@@ -127,9 +147,14 @@ export const INTERFACES: readonly InterfaceModel[] = [
       },
       {
         title: "Where to read next",
-        body: "MOABB is the benchmark library for this signal. Open that link, then keep any files local. This site does not download them.",
+        body: "MOABB is the benchmark library for this signal. Open that link, then keep any files local. This site does not download them. Jayaram and Barachant, 2018, is the paper that describes the library.",
       },
     ],
+    learn: {
+      video: LEARN.eegVideo,
+      watchNote: "Two minutes on what a scalp electrode measures, and what it cannot localize.",
+      sources: [LEARN.eegVideo, LEARN.moabb, LEARN.moabbPaper, LEARN.eegnet, LEARN.conformer, LEARN.csp],
+    },
   },
   {
     slug: "surface",
@@ -155,9 +180,14 @@ export const INTERFACES: readonly InterfaceModel[] = [
       },
       {
         title: "Still not a spike list",
-        body: "The recording is a surface field potential. A decoder for that patch is the matching model, not a single-neuron model.",
+        body: "The recording is a surface field potential. A decoder for that patch is the matching model, not a single-neuron model. Buzsáki, Anastassiou, and Koch call this electrocorticography.",
       },
     ],
+    learn: {
+      watchNote:
+        "Precision's public page describes a film of 1,024 electrodes that stays on the surface. That count is not a result reproduced here.",
+      sources: [LEARN.precision, LEARN.buzsaki],
+    },
   },
   {
     slug: "stent",
@@ -183,9 +213,15 @@ export const INTERFACES: readonly InterfaceModel[] = [
       },
       {
         title: "What the public record is",
-        body: "Synchron describes the Stentrode as investigational. The electrode count is from that published system, not a number this repository has rerun.",
+        body: "Synchron describes the Stentrode as investigational. The electrode count is from that published system, not a number this repository has rerun. Oxley and colleagues, 2021, is the first human report.",
       },
     ],
+    learn: {
+      video: LEARN.stentVideo,
+      watchNote:
+        "The clip is a participant describing a click from attempted movement. The drawing shows the vessel. It is not a catheterization.",
+      sources: [LEARN.stentVideo, LEARN.oxley, LEARN.synchron, LEARN.buzsaki],
+    },
   },
   {
     slug: "utah",
@@ -211,9 +247,14 @@ export const INTERFACES: readonly InterfaceModel[] = [
       },
       {
         title: "The limitation",
-        body: "The needles are stiff. Flexible threads are a later design trying to avoid that stiffness. This card does not describe how an array is placed.",
+        body: "The needles are stiff. Flexible threads are a later design trying to avoid that stiffness. This card does not describe how an array is placed. Hochberg and colleagues, Nature 2006, is the first human cursor from this kind of array.",
       },
     ],
+    learn: {
+      watchNote:
+        "BrainGate's page collects the 2006 cursor and prosthetic videos. This card does not describe how an array is placed.",
+      sources: [LEARN.braingateVideos, LEARN.hochberg, LEARN.blackrock, LEARN.lfads],
+    },
   },
   {
     slug: "threads",
@@ -239,9 +280,15 @@ export const INTERFACES: readonly InterfaceModel[] = [
       },
       {
         title: "Which model hears spikes",
-        body: "A list of spikes is not an EEG rhythm. LFADS is the spike model in this repository. EEG-Conformer is the wrong tool for this signal.",
+        body: "A list of spikes is not an EEG rhythm. LFADS is the spike model in this repository. EEG-Conformer is the wrong tool for this signal. The brochure count is 1,024 electrodes on 64 threads.",
       },
     ],
+    learn: {
+      video: LEARN.primeVideo,
+      watchNote:
+        "The clip says what the PRIME study is for: a wireless implant that reads movement intent. This drawing is not the robot and not a procedure.",
+      sources: [LEARN.primeVideo, LEARN.neuralink, LEARN.lfads],
+    },
   },
   {
     slug: "connexus",
@@ -267,9 +314,14 @@ export const INTERFACES: readonly InterfaceModel[] = [
       },
       {
         title: "Leave the marketing number out",
-        body: "Do not copy a bits-per-second claim onto a card. A benchmark stays empty until a run in this repository reproduces it.",
+        body: "Do not copy a bits-per-second claim onto a card. A benchmark stays empty until a run in this repository reproduces it. The public count to remember is 421 electrodes, about 1.5 mm in.",
       },
     ],
+    learn: {
+      watchNote:
+        "Paradromics describes individual-neuron recordings and a wireless link aimed at speech. Leave any bits-per-second claim off the card.",
+      sources: [LEARN.paradromics, LEARN.lfads],
+    },
   },
 ];
 

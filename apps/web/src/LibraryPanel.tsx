@@ -6,6 +6,7 @@ import {
   matchesQuery,
   snapshotDate,
 } from "./content";
+import { LearnBlock } from "./LearnBits";
 import type { Algorithm, AtlasData, Field, ModelCard, Paper, Resource } from "./types";
 
 function hidden(text: string, query: string): string {
@@ -17,11 +18,13 @@ export function LibraryPanel({
   query,
   datasets,
   onPickAlgorithm,
+  onOpenPart,
 }: {
   data: AtlasData;
   query: string;
   datasets: Array<{ field: Field; resource: Resource }>;
   onPickAlgorithm: (slug: string) => void;
+  onOpenPart: (slug: string) => void;
 }) {
   return (
     <div className="library" id="library">
@@ -29,16 +32,35 @@ export function LibraryPanel({
         <p className="kicker">Roadmap</p>
         <h2>Start here.</h2>
         <p className="lede">
-          Five parts. Each part has smaller steps. Synthetic training comes before any download.
+          Five parts. Each part has smaller steps, a source list, and the scene it belongs to. Synthetic
+          training comes before any download.
         </p>
         <ol className="steps">
           {ROADMAP.map((part) => {
-            const blob = [part.title, part.aim, ...part.steps.flatMap((step) => [step.title, step.body])].join(" ");
+            const blob = [
+              part.title,
+              part.aim,
+              part.watchNote,
+              part.video?.label,
+              ...part.parts.map((item) => item.label),
+              ...part.sources.map((source) => `${source.kind} ${source.label}`),
+              ...part.steps.flatMap((step) => [step.title, step.body]),
+            ].join(" ");
             return (
               <li key={part.title} className={hidden(blob, query)}>
                 <div>
                   <h3>{part.title}</h3>
                   <p>{part.aim}</p>
+                  {part.parts.length > 0 ? (
+                    <div className="part-picks">
+                      {part.parts.map((item) => (
+                        <button key={item.slug} type="button" onClick={() => onOpenPart(item.slug)}>
+                          Open {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                  <LearnBlock video={part.video} watchNote={part.watchNote} sources={part.sources} />
                   <ol className="substeps">
                     {part.steps.map((step) => (
                       <li

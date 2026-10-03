@@ -332,7 +332,64 @@ footer { padding: 1.4rem 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
 
 .substeps h3, .substeps h4 { margin: 0; font-size: 0.92rem; }
 
-.substeps p, .steps > li > div > p { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
+.substeps p, .steps > li > div > p, .learn p { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+
+.part-picks { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
+
+.part-picks button {
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.part-picks button:hover, .part-picks button:focus-visible { border-color: var(--eeg); color: var(--eeg); }
+
+.learn { margin-top: 0.65rem; }
+
+.watch {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: 0.55rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: #000;
+}
+
+.sources {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.sources a {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
+  max-width: 100%;
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.sources .kind {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  color: var(--eeg);
+}
 
 .datasets { display: grid; gap: 0.6rem; margin-top: 0.8rem; }
 

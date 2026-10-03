@@ -56,6 +56,18 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
     setAlgorithmSlug(null);
   }
 
+  function openPart(slug: string) {
+    if (slug === "atlas") {
+      setScene("atlas");
+      setLibraryOpen(false);
+      setAlgorithmSlug(null);
+      return;
+    }
+    setFocus(slug);
+    setScene("interfaces");
+    setLibraryOpen(false);
+  }
+
   return (
     <div className="app">
       <div className="viewport">
@@ -98,6 +110,7 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
             query={query}
             datasets={datasets}
             onPickAlgorithm={pickAlgorithm}
+            onOpenPart={openPart}
           />
         ) : scene === "interfaces" ? (
           <div className="dock">
