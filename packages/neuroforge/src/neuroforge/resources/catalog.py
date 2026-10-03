@@ -43,6 +43,32 @@ class Paper(BaseModel):
         return value
 
 
+class Algorithm(BaseModel):
+    slug: str
+    name: str
+    field: str
+    implemented: bool
+    anchor: list[float]
+    summary: str
+    use_when: str
+    url: str
+    command: str = ""
+
+    @field_validator("url")
+    @classmethod
+    def _http(cls, value: str) -> str:
+        if not value.startswith(("http://", "https://")):
+            raise ValueError("url must start with http:// or https://")
+        return value
+
+    @field_validator("anchor")
+    @classmethod
+    def _anchor(cls, value: list[float]) -> list[float]:
+        if len(value) != 3:
+            raise ValueError("anchor must be x, y, z")
+        return value
+
+
 class Field(BaseModel):
     slug: str
     name: str
@@ -55,8 +81,17 @@ class Field(BaseModel):
     papers: list[Paper] = PydField(default_factory=list)
 
 
+def _cards_dir() -> Path:
+    return Path(__file__).resolve().parent.parent / "cards"
+
+
 def _field_dir() -> Path:
-    return Path(__file__).resolve().parent.parent / "cards" / "fields"
+    return _cards_dir() / "fields"
+
+
+def load_algorithms() -> list[Algorithm]:
+    payload = yaml.safe_load((_cards_dir() / "algorithms.yaml").read_text(encoding="utf-8"))
+    return [Algorithm.model_validate(item) for item in payload]
 
 
 def load_fields() -> list[Field]:

@@ -10,5 +10,10 @@ summary: >
   without downloading a competition dataset. Published BCI IV 2a numbers are
   not claimed until a reproduced run is attached.
 train_command: uv run neuroforge train --model eeg_conformer --steps 2
+inputs: A batch of shape (trials, channels, samples), in volts, already filtered.
+usage: >
+  Use it for offline classification of a whole trial. The transformer sees
+  every patch, so it is the wrong model when the device must answer from the
+  past alone. The causal TCN is that model.
 license: Apache-2.0
 benchmarks: []

@@ -9,5 +9,9 @@ summary: >
   Coordinated dropout is applied to the encoder input. Train the smoke recipe
   before pointing it at a DANDI NWB file.
 train_command: uv run neuroforge train --model lfads --steps 2
+inputs: Binned spike counts of shape (trials, time, neurons).
+usage: >
+  Use it to infer a low-dimensional initial condition and Poisson rates.
+  Score held-out bins with co-bps. Do not score it with classification accuracy.
 license: Apache-2.0
 benchmarks: []

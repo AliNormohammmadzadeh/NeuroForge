@@ -1,0 +1,30 @@
+slug: evaluation
+name: How to know a result is real
+kicker: Evaluation
+hue: "#e7e1d5"
+retrieved_on: "2026-10-03"
+snapshot_source: Project recipes
+summary: >
+  The usual failure is a window from a test subject inside the training fold.
+  Split on RecordingKey first, at subject, session, or run. Report kappa for
+  EEG, bits per spike for held-out spike bins, and never fill a benchmark card
+  with a number this repository did not reproduce. An empty benchmark list is
+  intentional.
+resources:
+  - slug: group-kfold
+    name: GroupKFold
+    kind: guide
+    url: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html
+    access: neuroforge.data.group_kfold wraps this and then asserts the groups are disjoint.
+    summary: >
+      The splitter that keeps every window from one subject on one side of the
+      cut. Accuracy on a random window split is not a BCI result.
+  - slug: nlb-metrics
+    name: Neural Latents metrics
+    kind: benchmark
+    url: https://neurallatents.github.io/
+    access: co_bps in neuroforge.training.metrics is bits per spike above a mean rate.
+    summary: >
+      The evaluation for latent spike models. Accuracy does not describe a
+      Poisson rate.
+papers: []

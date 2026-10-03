@@ -1,0 +1,172 @@
+- slug: bandpass
+  name: Bandpass, notch, CAR
+  field: eeg-bci
+  implemented: true
+  anchor: [-0.46, 0.55, 0.16]
+  url: https://mne.tools/stable/auto_tutorials/preprocessing/index.html
+  command: "neuroforge.data.preprocessing.Pipeline"
+  summary: >
+    A causal bandpass, a notch at the line frequency and its harmonic, then a
+    common-average reference that ignores bad channels. This is the front of
+    every motor-imagery recipe.
+  use_when: >
+    Use it before any decoder. Fit the z-score on the training fold only, and
+    keep the config hash with the cache.
+
+- slug: csp
+  name: CSP
+  field: eeg-bci
+  implemented: false
+  anchor: [-0.2, 0.78, 0.02]
+  url: https://doi.org/10.3389/fnins.2012.00039
+  command: ""
+  summary: >
+    Common Spatial Patterns finds spatial filters that maximize the variance
+    ratio between two classes. Filter-bank CSP was the BCI Competition IV
+    baseline.
+  use_when: >
+    Use it as the classical baseline for two-class or four-class motor imagery
+    before you trust a neural net. It is not trained by neuroforge train.
+
+- slug: riemann
+  name: Riemannian MDM
+  field: eeg-bci
+  implemented: false
+  anchor: [0.18, 0.74, 0.08]
+  url: https://doi.org/10.1109/tbme.2011.2172210
+  command: ""
+  summary: >
+    Each trial becomes a covariance matrix. Minimum-distance-to-mean
+    classification on the Riemannian manifold is a strong subject-specific
+    baseline in MOABB.
+  use_when: >
+    Use it when you have clean trials and want a baseline that is not a deep
+    network. This repository does not ship the classifier.
+
+- slug: eegnet
+  name: EEGNet
+  field: eeg-bci
+  implemented: false
+  anchor: [0.46, 0.48, 0.12]
+  url: https://doi.org/10.1088/1741-2552/aace8c
+  command: ""
+  summary: >
+    A compact temporal-then-spatial convolution with depthwise and separable
+    layers. Lawhern and colleagues designed it to train on small EEG sets.
+  use_when: >
+    Read it before EEG-Conformer. It is the usual first deep model. The
+    shipped deep EEG models here are the Conformer and the causal TCN.
+
+- slug: eeg-conformer
+  name: EEG-Conformer
+  field: eeg-bci
+  implemented: true
+  anchor: [0.08, 0.42, -0.22]
+  url: https://doi.org/10.1109/tnsre.2022.3230250
+  command: uv run neuroforge train --model eeg_conformer --steps 2
+  summary: >
+    Temporal convolution, spatial convolution, then a pre-norm transformer.
+    The decision uses the whole trial.
+  use_when: >
+    Use it for offline classification when a trial is a second or two and
+    latency is not the constraint.
+
+- slug: tcn
+  name: Causal TCN
+  field: eeg-bci
+  implemented: true
+  anchor: [-0.42, 0.28, -0.18]
+  url: https://arxiv.org/abs/1803.01271
+  command: uv run neuroforge train --model tcn --steps 2
+  summary: >
+    Dilated causal convolutions. The output at the last sample depends only on
+    the past, and the receptive field is exact.
+  use_when: >
+    Use it when the decoder must run sample by sample or export to ONNX for a
+    device. neuroforge export checks numeric parity.
+
+- slug: binning
+  name: Spike binning
+  field: spikes
+  implemented: true
+  anchor: [-0.4, -0.42, 0.12]
+  url: https://dandiarchive.org/dandiset/000128
+  command: neuroforge.data.bin_spikes
+  summary: >
+    Spike times become integer counts in fixed bins. LFADS and the bits-per-spike
+    metric both consume that matrix, shaped trials by time by neurons.
+  use_when: >
+    Use it as soon as you have sorted units and trial edges. Bin size is part
+    of the recipe, not a free parameter to tune on the test set.
+
+- slug: gpfa
+  name: GPFA
+  field: spikes
+  implemented: false
+  anchor: [0.34, -0.38, 0.16]
+  url: https://doi.org/10.1152/jn.90941.2008
+  command: ""
+  summary: >
+    Gaussian-process factor analysis extracts a smooth low-dimensional
+    trajectory from single-trial spike counts. Yu and colleagues made it the
+    standard linear latent model.
+  use_when: >
+    Fit it before a deep latent model. If GPFA cannot see a trajectory, a
+    larger network probably cannot explain one either. Not trained here.
+
+- slug: lfads
+  name: LFADS
+  field: spikes
+  implemented: true
+  anchor: [0.02, -0.72, 0.0]
+  url: https://doi.org/10.1038/s41592-018-0109-9
+  command: uv run neuroforge train --model lfads --steps 2
+  summary: >
+    A sequential autoencoder. A bidirectional encoder guesses the initial
+    condition, and a generator produces Poisson rates.
+  use_when: >
+    Use it when the question is the latent factors of one trial, not a class
+    label. Score held-out bins with co-bps, not accuracy.
+
+- slug: cebra
+  name: CEBRA
+  field: spikes
+  implemented: false
+  anchor: [0.4, -0.62, -0.12]
+  url: https://doi.org/10.1038/s41586-023-06031-6
+  command: ""
+  summary: >
+    Contrastive learning that embeds spikes and behavior into one space.
+    Schneider, Lee, and Mathis use it when the label is a continuous behavior,
+    not a discrete cue.
+  use_when: >
+    Read it when you have behavior aligned to spikes and you do not want a
+    Poisson generator. This repository does not train it.
+
+- slug: correlation
+  name: Correlation connectome
+  field: connectomics
+  implemented: false
+  anchor: [-0.48, 0.02, 0.18]
+  url: https://nilearn.github.io/
+  command: ""
+  summary: >
+    Region time series become a matrix of Pearson correlations, sometimes
+    partial correlations. That matrix is the input graph, not the raw fMRI run.
+  use_when: >
+    Build it with one atlas and one pipeline. Mixing ABIDE pipelines inside
+    one split invents a second site effect. Not computed by the smoke trainer.
+
+- slug: brain-gnn
+  name: BrainGNN
+  field: connectomics
+  implemented: true
+  anchor: [0.46, -0.02, 0.1]
+  url: https://doi.org/10.1016/j.media.2021.102233
+  command: uv run neuroforge train --model brain_gnn --steps 2
+  summary: >
+    Edge-weighted message passing on the connectivity matrix, then a top-k
+    readout. Implemented in plain PyTorch.
+  use_when: >
+    Use it when each example is one subject's matrix and the label is a
+    phenotype or a task. The split key is the subject.

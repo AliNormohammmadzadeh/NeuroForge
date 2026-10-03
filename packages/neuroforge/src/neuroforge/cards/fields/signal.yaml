@@ -1,0 +1,31 @@
+slug: signal
+name: From voltage to a trial
+kicker: Start with the signal
+hue: "#d7c4a3"
+retrieved_on: "2026-10-03"
+snapshot_source: Project recipes
+summary: >
+  A decoder never sees the headset file directly. EEG is filtered, rereferenced,
+  cut into trials, and scaled with statistics from the training fold. Spikes
+  are binned. fMRI becomes a connectivity matrix. Do that work in a fixed
+  order and write the config hash into the cache, or a later run will silently
+  mix two preprocessings.
+resources:
+  - slug: mne-preprocessing
+    name: MNE preprocessing tutorials
+    kind: guide
+    url: https://mne.tools/stable/auto_tutorials/preprocessing/index.html
+    access: Read filtering and rereferencing here, then call the Pipeline in this library.
+    summary: >
+      The practical reference for bandpass filters, ICA, and bad channels.
+      The smoke tests use the smaller Pipeline in neuroforge.data, which is
+      causal when you ask it to be.
+  - slug: bids-spec
+    name: BIDS specification
+    kind: format
+    url: https://bids-specification.readthedocs.io/en/stable/
+    access: Put subject, session, and task in the filename before you window the data.
+    summary: >
+      The reason a split can see who the recording belongs to. Without that
+      identity, leakage checks have nothing to compare.
+papers: []

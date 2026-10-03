@@ -1,0 +1,31 @@
+slug: decoding
+name: Choosing a decoder
+kicker: Algorithms
+hue: "#9ddec4"
+retrieved_on: "2026-10-03"
+snapshot_source: Project recipes
+summary: >
+  Start with the algorithm the field already trusts, then the model this
+  repository can train. For motor imagery that is CSP or a Riemannian
+  classifier, then EEG-Conformer or a causal TCN. For spikes it is GPFA, then
+  LFADS. For a connectome it is a correlation matrix, then BrainGNN. The
+  cortex view labels each of these. A label marked as a reference is not
+  trained by neuroforge train.
+resources:
+  - slug: braindecode
+    name: Braindecode
+    kind: tool
+    url: https://braindecode.org/
+    access: Use it when you want EEGNet and other published EEG networks side by side.
+    summary: >
+      The library that collected the deep EEG baselines. NeuroForge ships two
+      of those ideas, the Conformer and a causal TCN, and documents the rest.
+  - slug: moabb-docs
+    name: MOABB documentation
+    kind: benchmark
+    url: https://moabb.neurotechx.com/docs/index.html
+    access: Compare classical pipelines on the same subject splits before quoting a deep model.
+    summary: >
+      Where CSP and Riemannian methods are already implemented and scored.
+      Copy a protocol from here. Do not copy a leaderboard number into a card.
+papers: []
