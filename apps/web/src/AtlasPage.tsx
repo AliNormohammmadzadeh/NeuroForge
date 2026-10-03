@@ -9,18 +9,20 @@ import {
   matchesQuery,
   snapshotDate,
 } from "./content";
+import { InterfaceSection } from "./interfaces/InterfaceSection";
 import type { Algorithm, AtlasData, CortexSelection, Field, ModelCard, Paper, Resource } from "./types";
 
 export interface AtlasPageProps {
   data: AtlasData;
   renderCortex: (props: CortexSelection) => ReactNode;
+  renderCutaway: (slug: string) => ReactNode;
 }
 
 function hidden(text: string, query: string): string {
   return matchesQuery(text, query) ? "" : "is-hidden";
 }
 
-export function AtlasPage({ data, renderCortex }: AtlasPageProps) {
+export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps) {
   const [query, setQuery] = useState("");
   const [fieldSlug, setFieldSlug] = useState<string | null>(null);
   const [algorithmSlug, setAlgorithmSlug] = useState<string | null>(null);
@@ -61,6 +63,7 @@ export function AtlasPage({ data, renderCortex }: AtlasPageProps) {
       <header className="top">
         <p className="mark">NeuroForge</p>
         <nav>
+          <a href="#interfaces">Interfaces</a>
           <a href="#start">Start</a>
           <a href="#algorithms">Algorithms</a>
           <a href="#datasets">Datasets</a>
@@ -69,13 +72,14 @@ export function AtlasPage({ data, renderCortex }: AtlasPageProps) {
           <a href="#fields">Fields</a>
         </nav>
       </header>
-      <section className="hero">
+      <InterfaceSection query={query} renderCutaway={renderCutaway} />
+      <section id="map" className="hero map">
         <div>
           <p className="kicker">Field atlas</p>
-          <h1>The sources behind the recipes.</h1>
+          <h2>The sources behind the recipes.</h2>
           <p className="lede">
             The cloud is a map of the algorithms, not a scan. Green holds the EEG decoders, amber
-            the spike models, blue the connectome models. Pick a label to read when to use it.
+            the spike models, blue the connectome models. Choose a name to read when to use it.
           </p>
           <div className="tabs" role="group" aria-label="Field on the cortex">
             <button
@@ -130,6 +134,7 @@ export function AtlasPage({ data, renderCortex }: AtlasPageProps) {
             />
           </label>
         </div>
+        <div className="stack">
         <div className="stage">
           <ul className="legend">
             <li>
@@ -152,12 +157,27 @@ export function AtlasPage({ data, renderCortex }: AtlasPageProps) {
             onPick: pickAlgorithm,
             onCount: setCount,
           })}
-          {selected ? <AlgorithmCard algorithm={selected} /> : null}
           <p className="hud">
             {count > 0
-              ? `${count} sites. Drag to orbit. Pick an algorithm label.`
-              : "Drag to orbit. Pick an algorithm."}
+              ? `${count} sites. Drag to orbit. Choose an algorithm below.`
+              : "Drag to orbit. Choose an algorithm below."}
           </p>
+        </div>
+        <div className="pills" role="list">
+          {data.algorithms
+            .filter((item) => fieldSlug === null || item.field === fieldSlug)
+            .map((item) => (
+              <button
+                key={item.slug}
+                type="button"
+                aria-pressed={algorithmSlug === item.slug}
+                onClick={() => pickAlgorithm(item.slug)}
+              >
+                {item.name}
+              </button>
+            ))}
+        </div>
+        {selected ? <AlgorithmCard algorithm={selected} /> : null}
         </div>
       </section>
       <section id="start" className="band">
