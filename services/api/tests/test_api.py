@@ -27,6 +27,7 @@ def test_health_models_and_home() -> None:
     assert "MOABB" in page.text
     assert 'id="cortex"' in page.text
     assert "Start here." in page.text
+    assert "neuroforge demo" in page.text
     assert "Riemannian MDM" in page.text
     assert "Before a training run." in page.text
     assert "Use it when latency matters" in page.text

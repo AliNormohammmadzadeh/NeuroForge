@@ -191,7 +191,8 @@ def render_roadmap() -> str:
         ),
         (
             "Learn the split",
-            "A subject, session, or run in the training fold cannot appear in the test fold.",
+            "uv run neuroforge demo. A window split memorizes the person and scores "
+            "higher. A subject split shares nobody and the score falls.",
         ),
         (
             "Freeze the preprocessing",
@@ -238,7 +239,7 @@ def render_train() -> str:
         (
             "Windows after the split",
             "Cut trials only after the groups are assigned. "
-            "A random split of windows memorizes the person.",
+            "uv run neuroforge demo shows a window split memorizing the person.",
         ),
         (
             "One input shape",
