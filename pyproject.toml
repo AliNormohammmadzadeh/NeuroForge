@@ -1,0 +1,47 @@
+[project]
+name = "neuroforge-workspace"
+version = "0.1.0"
+description = "Development workspace for NeuroForge"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv.workspace]
+members = ["packages/neuroforge", "services/api"]
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.120",
+    "httpx2>=2.0",
+    "mypy>=1.15",
+    "pybv>=0.7.3",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.11",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["packages/neuroforge/src", "services/api/src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM"]
+ignore = ["N812"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages/neuroforge/tests", "services/api/tests"]
+addopts = "-q --tb=short"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+# torch.nn.Module attribute access is typed as Any, so strict return checks
+# fail on every forward(). Keep the rest of strict mode.
+warn_return_any = false
+warn_unused_ignores = true
+packages = ["neuroforge", "api"]
+mypy_path = "packages/neuroforge/src:services/api/src"
+ignore_missing_imports = true
+namespace_packages = true
+explicit_package_bases = true

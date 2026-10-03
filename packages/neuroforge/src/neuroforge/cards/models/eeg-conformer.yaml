@@ -1,0 +1,14 @@
+slug: eeg-conformer
+name: EEG-Conformer
+architecture: temporal-spatial conv + pre-norm transformer
+task: classification
+modalities: [EEG, MEG, iEEG]
+param_count: 0
+summary: >
+  Convolutional patch embedding followed by a pre-norm transformer.
+  The shipped train command fits a tiny synthetic batch so the recipe runs
+  without downloading a competition dataset. Published BCI IV 2a numbers are
+  not claimed until a reproduced run is attached.
+train_command: uv run neuroforge train --model eeg_conformer --steps 2
+license: Apache-2.0
+benchmarks: []

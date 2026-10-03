@@ -1,0 +1,10 @@
+slug: bci-iv-2a
+name: BCI Competition IV 2a
+source: moabb:BNCI2014_001
+modality: EEG
+species: Human
+format: BIDS-compatible
+summary: >
+  Four-class motor imagery. The reference recipe is bandpass 4–40 Hz, 50 Hz
+  notch, common-average reference, and subject-level splits. This package does
+  not download the set; use data=synthetic until a local copy is configured.

@@ -1,0 +1,10 @@
+slug: abide-connectome
+name: ABIDE functional connectomes
+source: public-s3
+modality: fMRI
+species: Human
+format: npy
+summary: >
+  Subject-level functional connectivity for the BrainGNN recipe. Split by
+  subject. The smoke trainer uses a synthetic connectome with the same tensor
+  layout.

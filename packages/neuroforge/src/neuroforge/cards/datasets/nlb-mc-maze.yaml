@@ -1,0 +1,9 @@
+slug: nlb-mc-maze
+name: NLB MC_Maze
+source: dandi:000128
+modality: Spikes
+species: Macaque
+format: nwb
+summary: >
+  Maze reaching spikes used by the LFADS recipe. Stream from DANDI with
+  examples/stream_dandi.py; unit tests use a synthetic NWB file instead.

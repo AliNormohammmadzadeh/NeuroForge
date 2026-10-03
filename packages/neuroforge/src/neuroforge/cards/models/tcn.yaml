@@ -1,0 +1,13 @@
+slug: tcn
+name: Causal TCN
+architecture: dilated causal residual conv
+task: classification
+modalities: [EEG, iEEG]
+param_count: 0
+summary: >
+  Stacked dilated causal convolutions with a weight-normalized residual path.
+  The receptive field is exact and the network is exportable to ONNX for
+  real-time decoding.
+train_command: uv run neuroforge train --model tcn --steps 2
+license: Apache-2.0
+benchmarks: []

@@ -1,0 +1,13 @@
+slug: brain-gnn
+name: BrainGNN
+architecture: edge-weighted GCN with top-k readout
+task: graph
+modalities: [fMRI]
+param_count: 0
+summary: >
+  Edge-weighted message passing over a connectivity matrix, then mean and max
+  readout of the top-k regions. Implemented in PyTorch so it does not require
+  torch_geometric.
+train_command: uv run neuroforge train --model brain_gnn --steps 2
+license: Apache-2.0
+benchmarks: []

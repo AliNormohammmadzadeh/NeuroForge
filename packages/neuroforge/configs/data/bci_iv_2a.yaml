@@ -1,0 +1,11 @@
+name: bci_iv_2a
+source: moabb:BNCI2014_001
+preprocessing:
+  bandpass: {l_freq: 4.0, h_freq: 40.0, order: 4}
+  notch: {freq: 50.0, harmonics: 2}
+  car: true
+  resample: 250
+window: {mode: event, tmin_s: 0.0, tmax_s: 4.0}
+normalize: zscore_per_channel
+split_level: subject
+batch_size: 64
