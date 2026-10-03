@@ -1,0 +1,55 @@
+slug: literature
+name: Papers and patents
+kicker: Field 04
+hue: "#d8d0c3"
+retrieved_on: "2026-10-03"
+snapshot_source: OpenAlex and arXiv
+summary: >
+  New methods show up as preprints. arXiv and bioRxiv are the streams. OpenAlex
+  and PubMed attach authors, venue, and a citation snapshot. Patent search
+  moved with PatentsView onto the USPTO Open Data Portal. The papers on the
+  other three fields were read from OpenAlex and arXiv on 3 Oct 2026. This
+  atlas stores that snapshot. It does not store full text, and a citation
+  count is not a leaderboard.
+resources:
+  - slug: arxiv-api
+    name: arXiv API
+    kind: api
+    url: https://export.arxiv.org/api/query
+    access: neuroforge literature --source arxiv --query 'ti:LFADS'
+    summary: >
+      Atom feed for preprints. The stable way to list new q-bio.NC, cs.LG,
+      and eess.SP work without scraping HTML.
+  - slug: openalex
+    name: OpenAlex
+    kind: api
+    url: https://api.openalex.org/works
+    access: neuroforge literature --source openalex --query "EEG Conformer"
+    summary: >
+      Open catalog of works with authors, venue, DOI, and a citation snapshot.
+      This is the source of the counts shown on the paper cards.
+  - slug: biorxiv-api
+    name: bioRxiv API
+    kind: api
+    url: https://api.biorxiv.org/
+    access: GET /details/biorxiv/{from}/{to}/{cursor} for the biology preprint stream.
+    summary: >
+      Neuroscience preprints that never land on arXiv. Query the API. The
+      HTML site is the wrong scrape target.
+  - slug: pubmed-eutils
+    name: PubMed E-utilities
+    kind: api
+    url: https://www.ncbi.nlm.nih.gov/home/develop/api/
+    access: esearch and esummary. Send a real tool name and email if you go past a demo.
+    summary: >
+      MEDLINE records for the journal version of a preprint. Use it to confirm
+      venue and year after OpenAlex, not to download PDFs.
+  - slug: uspto-patents
+    name: USPTO Open Data Portal
+    kind: api
+    url: https://data.uspto.gov/support/transition-guide/patentsview
+    access: PatentsView now redirects here. Search the patent file wrapper API for a classification, not a law-firm page.
+    summary: >
+      The public patent catalog after PatentsView. Useful for BCI headset and
+      decoder filings. A patent is not a methods paper.
+papers: []

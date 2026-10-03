@@ -1,0 +1,91 @@
+slug: connectomics
+name: Connectomes
+kicker: Field 03
+hue: "#7eb6ff"
+retrieved_on: "2026-10-03"
+snapshot_source: OpenAlex and arXiv
+summary: >
+  A connectome in this library is a region-by-region matrix, not a raw fMRI
+  run. ABIDE is the clinical resting-state collection, the Human Connectome
+  Project is the high-quality young-adult reference, and Nilearn or neuromaps
+  is how those images become a graph. The split key is still the subject.
+resources:
+  - slug: abide
+    name: ABIDE
+    kind: archive
+    url: http://fcon_1000.projects.nitrc.org/indi/abide/
+    access: Phenotypic tables and scan lists from the INDI page. HTTPS on this host is mis-certified; use the HTTP link.
+    summary: >
+      Autism Brain Imaging Data Exchange. Resting-state fMRI and phenotypes
+      from many sites. Site is a batch effect; do not ignore it in the split.
+  - slug: abide-preprocessed
+    name: PCP ABIDE preprocessed
+    kind: archive
+    url: http://preprocessed-connectomes-project.org/abide/
+    access: Precomputed pipelines (CCS, CPAC, DPARSF, NIAK). Same HTTP-only caveat as the INDI page.
+    summary: >
+      The version most graph papers actually download. Pick one pipeline and
+      stay with it. Mixing pipelines inside one split is a second site effect.
+  - slug: hcp
+    name: Human Connectome Project
+    kind: archive
+    url: https://www.humanconnectome.org/
+    access: ConnectomeDB / BALSA after a data-use agreement. Not downloaded here.
+    summary: >
+      Young-adult structural and functional connectivity at the quality later
+      clinical sets are compared against. Diffusion and resting-state both live here.
+  - slug: openneuro-mri
+    name: OpenNeuro MRI
+    kind: archive
+    url: https://openneuro.org
+    access: Filter the archive to MRI and BIDS. Anonymous S3 is the same remote helper as EEG.
+    summary: >
+      Smaller public BIDS studies when you need a reproducible download and
+      HCP's agreement is the wrong weight for a methods check.
+  - slug: nilearn
+    name: Nilearn
+    kind: tool
+    url: https://nilearn.github.io/
+    access: Fetch a sphere atlas, extract region signals, then correlate. Not a dependency of the smoke tests.
+    summary: >
+      The Python path from a NIfTI run to a connectivity matrix. BrainGNN
+      starts at that matrix.
+  - slug: neuromaps
+    name: neuromaps
+    kind: tool
+    url: https://github.com/netneurolab/neuromaps
+    access: Compare a surface annotation to published brain maps before you invent a parcellation.
+    summary: >
+      Standard surfaces and published annotation maps. Use it to keep a
+      Schaefer or Glasser parcellation aligned with the field.
+papers:
+  - title: "BrainGNN: Interpretable Brain Graph Neural Network for fMRI Analysis"
+    year: 2021
+    authors: [Xiaoxiao Li, Yuan Zhou, Nicha C. Dvornek, Muhan Zhang]
+    venue: Medical Image Analysis
+    url: https://doi.org/10.1016/j.media.2021.102233
+    doi: 10.1016/j.media.2021.102233
+    cited_by_count: 797
+    why: >
+      The graph model this repository implements: edge-weighted message
+      passing and a top-k readout on a connectivity matrix.
+  - title: "The WU-Minn Human Connectome Project: An overview"
+    year: 2013
+    authors: [David C. Van Essen, Stephen M. Smith, Deanna M. Barch]
+    venue: NeuroImage
+    url: https://doi.org/10.1016/j.neuroimage.2013.05.041
+    doi: 10.1016/j.neuroimage.2013.05.041
+    cited_by_count: 6405
+    why: >
+      The overview paper for the young-adult HCP. Cite it when the data is
+      HCP, not when the method merely uses some connectivity matrix.
+  - title: "The autism brain imaging data exchange: towards a large-scale evaluation of the intrinsic brain architecture in autism"
+    year: 2013
+    authors: [Adriana Di Martino, Chao-Gan Yan, Qinghong Li]
+    venue: Molecular Psychiatry
+    url: https://doi.org/10.1038/mp.2013.78
+    doi: 10.1038/mp.2013.78
+    cited_by_count: 2941
+    why: >
+      The ABIDE consortium paper. ABIDE II is a later Scientific Data release;
+      say which one a split used.

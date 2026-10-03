@@ -11,9 +11,10 @@ What runs today:
 - BIDS and local NWB readers that return volts
 - EEG-Conformer, a causal TCN, LFADS, and BrainGNN
 - ONNX export of the EEG decoders with a numeric parity check
-- A registry API and homepage over the model and dataset cards
+- A registry API and a field atlas: MOABB, OpenNeuro, DANDI, ABIDE, the Human Connectome Project, and the papers those recipes follow
+- `neuroforge literature` queries the arXiv and OpenAlex APIs for title, authors, year, and a URL
 
-Paper and patent ingestion, embedding search, and the Next.js explorer are still design notes in the sections below.
+Embedding search and the Next.js explorer are still design notes in the sections below. The atlas stores a dated metadata snapshot and does not keep full text.
 
 ```bash
 uv sync --all-packages --group dev
