@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-import html
 from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from api.pages import render_atlas, render_models, render_tabs
 from api.search import reciprocal_rank_fusion
 from neuroforge.registry import (
     DatasetCard,
@@ -18,6 +19,7 @@ from neuroforge.registry import (
     load_dataset_cards,
     load_model_cards,
 )
+from neuroforge.resources import Field, Resource, get_field, load_fields
 from neuroforge.training.cli import _build
 
 
@@ -41,7 +43,9 @@ def _param_count(slug: str) -> int:
 
 def create_app() -> FastAPI:
     app = FastAPI(title="NeuroForge", version="0.1.0")
-    template = (Path(__file__).parent / "templates" / "index.html").read_text(encoding="utf-8")
+    root = Path(__file__).parent
+    template = (root / "templates" / "index.html").read_text(encoding="utf-8")
+    app.mount("/static", StaticFiles(directory=root / "static"), name="static")
 
     @app.get("/healthz")
     def healthz() -> dict[str, str]:
@@ -71,12 +75,30 @@ def create_app() -> FastAPI:
     def datasets() -> list[DatasetCard]:
         return load_dataset_cards()
 
+    @app.get("/api/v1/fields", response_model=list[Field])
+    def fields() -> list[Field]:
+        return load_fields()
+
+    @app.get("/api/v1/fields/{slug}", response_model=Field)
+    def field(slug: str) -> Field:
+        try:
+            return get_field(slug)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="field not found") from exc
+
+    @app.get("/api/v1/resources", response_model=list[Resource])
+    def resources() -> list[Resource]:
+        found = []
+        for item in load_fields():
+            found.extend(item.resources)
+        return found
+
     @app.get("/api/v1/discover", response_model=list[DiscoverHit])
     def discover(
         q: str = "",
         kind: Annotated[list[str] | None, Query()] = None,
     ) -> list[DiscoverHit]:
-        wanted = set(kind or []) or {"model", "dataset"}
+        wanted = set(kind or []) or {"model", "dataset", "resource"}
         hits: list[DiscoverHit] = []
         needle = q.lower().strip()
         if "model" in wanted:
@@ -107,6 +129,20 @@ def create_app() -> FastAPI:
                         summary=dataset_card.summary,
                     )
                 )
+        if "resource" in wanted:
+            for item in load_fields():
+                for resource in item.resources:
+                    text = f"{resource.name} {resource.summary} {item.name}".lower()
+                    if needle and needle not in text and needle not in resource.slug:
+                        continue
+                    hits.append(
+                        DiscoverHit(
+                            type="resource",
+                            slug=resource.slug,
+                            name=resource.name,
+                            summary=resource.summary,
+                        )
+                    )
         if needle:
             lexical = [hit.slug for hit in hits if needle in f"{hit.name} {hit.summary}".lower()]
             exact = [hit.slug for hit in hits if needle in hit.slug]
@@ -117,19 +153,10 @@ def create_app() -> FastAPI:
 
     @app.get("/", response_class=HTMLResponse)
     def home() -> str:
-        cards = load_model_cards()
-        rows = []
-        for card in cards:
-            modalities = " · ".join(html.escape(item) for item in card.modalities)
-            rows.append(
-                "<article class='card'>"
-                f"<p class='kicker'>{modalities}</p>"
-                f"<h2>{html.escape(card.name)}</h2>"
-                f"<p>{html.escape(card.summary)}</p>"
-                f"<code>{html.escape(card.train_command)}</code>"
-                "</article>"
-            )
-        return template.replace("<!--CARDS-->", "\n".join(rows))
+        atlas = load_fields()
+        page = template.replace("<!--TABS-->", render_tabs(atlas))
+        page = page.replace("<!--ATLAS-->", render_atlas(atlas))
+        return page.replace("<!--CARDS-->", render_models(load_model_cards()))
 
     return app
 

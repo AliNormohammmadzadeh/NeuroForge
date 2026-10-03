@@ -20,6 +20,7 @@ Tests are offline. Do not add a test that downloads BCI, DANDI, or OpenNeuro dat
 - Continuous data is stored in volts. Readers convert on the way in.
 - Fit normalization on the training fold only. The preprocess config hash is part of the cache key.
 - Model cards may list a benchmark only when the number comes from a run this repository can reproduce. Leave `benchmarks` empty otherwise.
+- Paper cards store title, authors, year, venue, and a URL. Do not paste an abstract or a PDF. Citation counts need a `retrieved_on` date.
 - `packages/neuroforge` does not import `services/` or `apps/`.
 
 ## Remote data
