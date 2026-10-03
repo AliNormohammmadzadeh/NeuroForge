@@ -1,0 +1,9 @@
+Cortex, cerebellum, and brainstem meshes.
+
+Source: OpenNeuro ds006128 subject 01, snapshot 1.0.11.
+DOI: 10.18112/openneuro.ds006128.v1.0.11
+License: CC0-1.0
+Surfaces: FreeSurfer pial (cortex) and the matching cerebellum and brainstem surfaces
+prepared for the browser in the brain-explorer atlas (unified cortex, cerebellum, brain-stem).
+Coordinates are centered and scaled for this scene. This is one person's MRI surface,
+not a clinical model and not a surgical plan.

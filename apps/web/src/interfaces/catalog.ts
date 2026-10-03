@@ -29,8 +29,8 @@ export const HEAD_PARTS: readonly HeadPart[] = [
     name: "Cortex",
     role: "The source",
     color: "#d7b2a6",
-    what: "The wrinkled surface where the neurons in these models live.",
-    signal: "A surface film sits on it. Needles and threads end a short distance inside it. A stent listens from a vein beside it.",
+    what: "The wrinkled surface in the scene is a pial mesh from one public MRI, OpenNeuro ds006128 subject 01. Cerebellum and brainstem are included. It is not a clinical scan.",
+    signal: "A surface film sits on the gyri. Needles and threads end a short distance inside. A stent listens from a vein along the top.",
   },
 ];
 

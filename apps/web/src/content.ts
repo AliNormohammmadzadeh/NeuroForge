@@ -56,8 +56,8 @@ export const LATER: ReadonlyArray<{ group: string; title: string; body: string }
   },
   {
     group: "See the signal",
-    title: "Replace the schematic cutaway with a cited surface",
-    body: "The hemisphere is a drawing. A later view uses a cortical mesh we can name, with scalp, skull, and gray matter labeled from that source.",
+    title: "Use a skull from the same MRI",
+    body: "The cortex, cerebellum, and brainstem are the pial surface of OpenNeuro ds006128 subject 01. Scalp and skull are still smooth shells.",
   },
   {
     group: "See the signal",
