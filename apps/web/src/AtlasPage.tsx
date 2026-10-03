@@ -3,6 +3,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import {
   CORTEX_FIELDS,
   DATA_KINDS,
+  LATER,
   ROADMAP,
   TRAIN_NEEDS,
   authorLine,
@@ -65,6 +66,7 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
         <nav>
           <a href="#interfaces">Interfaces</a>
           <a href="#start">Start</a>
+          <a href="#later">Later</a>
           <a href="#algorithms">Algorithms</a>
           <a href="#datasets">Datasets</a>
           <a href="#train">Train</a>
@@ -192,6 +194,25 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
             <li key={step.title} className={hidden(`${step.title} ${step.body}`, query)}>
               <h3>{step.title}</h3>
               <p>{step.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section id="later" className="band">
+        <p className="kicker">Not built yet</p>
+        <h2>What we add later.</h2>
+        <p className="lede">
+          Improvements after the steps above. None of these run today. A benchmark card stays empty
+          until a run in this repository reproduces the number.
+        </p>
+        <ol className="steps later">
+          {LATER.map((item) => (
+            <li key={item.title} className={hidden(`${item.group} ${item.title} ${item.body}`, query)}>
+              <div>
+                <p className="kicker">{item.group}</p>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </div>
             </li>
           ))}
         </ol>

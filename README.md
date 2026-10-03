@@ -38,6 +38,17 @@ pnpm --dir apps/web dev
 
 Open `http://127.0.0.1:5173`. The atlas is a React app. The first scene is a React Three Fiber cutaway of where each electrode sits: scalp EEG, a surface film, an endovascular stent, a rigid microarray, Neuralink's threads, and Paradromics' array. The stippled cortex below it is the algorithm map. The page reads `/api/v1/fields`, `/api/v1/algorithms`, and `/api/v1/models`. `pnpm --dir apps/web build` writes `apps/web/dist`, and the API serves that build at `http://127.0.0.1:8000`. The broader Next.js explorer in the design notes below is still a design note.
 
+What we add later, and have not built:
+
+- Train the subject split on a local BIDS recording, still without downloading it
+- One reproduced benchmark on a model card
+- The YAML configs and Lightning modules on the `neuroforge train` path
+- The exported ONNX decoder, run in the browser on a synthetic trial
+- A cited cortical surface in place of the schematic cutaway
+- A connectome you can threshold, and one channel drawn over time
+- A page per model and per dataset
+- Literature search on the site, then search by meaning, still without storing full papers
+
 The finished hub is meant to answer four questions for a neuroscience researcher:
 
 1. **"What data can I train on, and how do I load it without fighting formats?"** → Unified BIDS / NWB loaders with streaming from DANDI and OpenNeuro.

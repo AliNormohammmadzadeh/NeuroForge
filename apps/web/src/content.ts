@@ -33,6 +33,59 @@ export const ROADMAP: ReadonlyArray<{ title: string; body: string }> = [
   },
 ];
 
+export const LATER: ReadonlyArray<{ group: string; title: string; body: string }> = [
+  {
+    group: "A real number",
+    title: "Train on a local BIDS recording",
+    body: "Point the subject split at a folder you already have. The trainer still refuses a shared subject, and it still does not download the file.",
+  },
+  {
+    group: "A real number",
+    title: "Fill one benchmark card from a run here",
+    body: "Kappa on one named EEG set, or bits per spike on one named spike set. The card stays empty until this repository reproduces the number.",
+  },
+  {
+    group: "A real number",
+    title: "Use the configs and Lightning modules already in the repo",
+    body: "neuroforge train still runs a short synthetic loop. The YAML recipes and the Lightning modules are not on that path yet.",
+  },
+  {
+    group: "See the signal",
+    title: "Run an exported decoder in the browser",
+    body: "Load the ONNX EEG model and score one synthetic trial on the page, next to the parity check the CLI already prints.",
+  },
+  {
+    group: "See the signal",
+    title: "Replace the schematic cutaway with a cited surface",
+    body: "The hemisphere is a drawing. A later view uses a cortical mesh we can name, with scalp, skull, and gray matter labeled from that source.",
+  },
+  {
+    group: "See the signal",
+    title: "Show a connectome you can threshold",
+    body: "Regions as nodes and weights as edges. A slider drops weak edges. BrainGNN is the model that reads the matrix.",
+  },
+  {
+    group: "See the signal",
+    title: "Show one channel over time",
+    body: "A window of EEG, or a spike raster, drawn from a local file. Zoom stays on the samples you already loaded.",
+  },
+  {
+    group: "Find the source",
+    title: "Give each model and each dataset its own page",
+    body: "The home page lists the cards. A later page holds one model, its input shape, its train command, and its empty benchmark list.",
+  },
+  {
+    group: "Find the source",
+    title: "Search the literature from the site",
+    body: "The CLI already asks arXiv and OpenAlex for title, authors, year, and a URL. The page does not yet.",
+  },
+  {
+    group: "Find the source",
+    title: "Search cards by meaning, not only by the words",
+    body: "Keyword search is what /api/v1/discover does now. Embeddings come after the card text is the corpus, and they do not store full papers.",
+  },
+];
+
 export const TRAIN_NEEDS: ReadonlyArray<{ title: string; body: string }> = [
   {
     title: "Environment",
