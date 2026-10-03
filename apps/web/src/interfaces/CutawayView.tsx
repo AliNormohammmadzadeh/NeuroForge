@@ -1,6 +1,7 @@
 import { useGLTF, OrbitControls } from "@react-three/drei";
-import { Canvas, type ThreeEvent } from "@react-three/fiber";
+import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, type ReactNode } from "react";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import * as THREE from "three";
 
 import cortexUrl from "./cortex.glb?url";
@@ -19,30 +20,16 @@ function tone(color: string, active: boolean): Tone {
   return {
     color,
     transparent: true,
-    opacity: active ? 1 : 0.22,
+    opacity: active ? 0.95 : 0.22,
     emissive: active ? color : "#000000",
-    emissiveIntensity: active ? 0.45 : 0,
-    roughness: 0.42,
-    metalness: 0.2,
+    emissiveIntensity: active ? 0.12 : 0,
+    roughness: 0.35,
+    metalness: 0.05,
   };
 }
 
 function useClip(): THREE.Plane[] {
   return useMemo(() => [new THREE.Plane(new THREE.Vector3(1, 0, 0), -0.06)], []);
-}
-
-function layerAlpha(id: "scalp" | "skull" | "cortex", focus: string): number {
-  const order = ["scalp", "skull", "cortex"];
-  const focusIndex = order.indexOf(focus);
-  const self = order.indexOf(id);
-  if (focusIndex === -1) {
-    if (id === "scalp") return 0.06;
-    if (id === "skull") return 0.1;
-    return 1;
-  }
-  if (self === focusIndex) return id === "cortex" ? 1 : 0.78;
-  if (self < focusIndex) return 0.04;
-  return 0.22;
 }
 
 function Pickable({
@@ -73,21 +60,35 @@ function Pickable({
   );
 }
 
-function tissue(color: string, focus: string, part: string) {
-  const selected = focus === part;
+function tissue(focus: string) {
   const dim = focus === "scalp" || focus === "skull";
   return {
-    color,
-    roughness: 0.58,
+    vertexColors: true,
+    color: "#ffffff",
+    roughness: 0.46,
     metalness: 0,
-    sheen: 1,
-    sheenRoughness: 0.42,
-    sheenColor: "#f3e4dc",
-    emissive: selected ? "#6a4038" : "#000000",
-    emissiveIntensity: selected ? 0.22 : 0,
+    clearcoat: 0.18,
+    clearcoatRoughness: 0.45,
+    envMapIntensity: 0.55,
     transparent: dim,
-    opacity: dim ? 0.28 : 1,
+    opacity: dim ? 0.42 : 1,
   };
+}
+
+function Studio() {
+  const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
+  useEffect(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = environment;
+    return () => {
+      environment.dispose();
+      pmrem.dispose();
+      scene.environment = null;
+    };
+  }, [gl, scene]);
+  return null;
 }
 
 function Brain({ focus }: { focus: string }) {
@@ -95,16 +96,17 @@ function Brain({ focus }: { focus: string }) {
   const cortex = gltf.nodes.cortex as THREE.Mesh;
   const cerebellum = gltf.nodes.cerebellum as THREE.Mesh;
   const brainstem = gltf.nodes.brainstem as THREE.Mesh;
+  const surface = tissue(focus);
   return (
     <group>
       <mesh geometry={cortex.geometry}>
-        <meshPhysicalMaterial {...tissue("#c9a094", focus, "cortex")} />
+        <meshPhysicalMaterial {...surface} />
       </mesh>
       <mesh geometry={cerebellum.geometry}>
-        <meshPhysicalMaterial {...tissue("#b88884", focus, "cortex")} />
+        <meshPhysicalMaterial {...surface} />
       </mesh>
       <mesh geometry={brainstem.geometry}>
-        <meshPhysicalMaterial {...tissue("#b79a90", focus, "cortex")} />
+        <meshPhysicalMaterial {...surface} />
       </mesh>
     </group>
   );
@@ -198,13 +200,13 @@ function Threads({ active }: { active: boolean }) {
   return (
     <group>
       <mesh position={layout.puck}>
-        <sphereGeometry args={[0.07, 24, 16]} />
+        <sphereGeometry args={[0.045, 24, 16]} />
         <meshStandardMaterial {...tone("#f3efe6", active)} />
       </mesh>
       {layout.curves.map((curve, index) => (
         <mesh key={index}>
-          <tubeGeometry args={[curve, 24, 0.008, 5, false]} />
-          <meshStandardMaterial {...tone("#e6a15c", active)} />
+          <tubeGeometry args={[curve, 28, 0.0045, 6, false]} />
+          <meshStandardMaterial {...tone("#e7c4a2", active)} />
         </mesh>
       ))}
     </group>
@@ -271,53 +273,74 @@ function ScalpElectrodes({ active }: { active: boolean }) {
 }
 
 function Scene({ focus, onPick }: { focus: string; onPick: (id: string) => void }) {
+  const showShells = focus === "scalp" || focus === "skull";
   return (
     <>
-      <Pickable id="scalp" onPick={onPick}>
-        <Shell radius={1} scale={[0.86, 0.82, 1.05]} color="#e7c2b4" opacity={layerAlpha("scalp", focus)} />
-      </Pickable>
-      <Pickable id="skull" onPick={onPick}>
-        <Shell radius={1} scale={[0.76, 0.74, 0.96]} color="#f4efe4" opacity={layerAlpha("skull", focus)} />
-      </Pickable>
+      <mesh position={[0, 0.02, -1.15]}>
+        <circleGeometry args={[1.35, 64]} />
+        <meshBasicMaterial color="#1c1416" transparent opacity={0.85} depthWrite={false} />
+      </mesh>
+      {showShells ? (
+        <>
+          <Pickable id="scalp" onPick={onPick}>
+            <Shell radius={1} scale={[0.86, 0.82, 1.05]} color="#e7c2b4" opacity={focus === "scalp" ? 0.5 : 0.08} />
+          </Pickable>
+          <Pickable id="skull" onPick={onPick}>
+            <Shell radius={1} scale={[0.76, 0.74, 0.96]} color="#f7f1e8" opacity={focus === "skull" ? 0.55 : 0.16} />
+          </Pickable>
+        </>
+      ) : null}
       <Pickable id="cortex" onPick={onPick}>
         <Brain focus={focus} />
       </Pickable>
-      <Pickable id="eeg" onPick={onPick}>
-        <ScalpElectrodes active={focus === "eeg"} />
-      </Pickable>
-      <Pickable id="surface" onPick={onPick}>
-        <SurfaceFilm active={focus === "surface"} />
-      </Pickable>
-      <Pickable id="stent" onPick={onPick}>
-        <Stent active={focus === "stent"} />
-      </Pickable>
-      <Pickable id="utah" onPick={onPick}>
-        <NeedleBed
-          at={[0.58, 0.3, 0.18]}
-          rows={4}
-          cols={4}
-          spacing={0.035}
-          length={0.16}
-          radius={0.008}
-          color="#d5dbe3"
-          active={focus === "utah"}
-        />
-      </Pickable>
-      <Pickable id="threads" onPick={onPick}>
-        <Threads active={focus === "threads"} />
-      </Pickable>
-      <Pickable id="connexus" onPick={onPick}>
-        <NeedleBed
-          at={[0.5, 0.02, 0.28]}
-          rows={5}
-          cols={3}
-          spacing={0.022}
-          length={0.14}
-          radius={0.005}
-          color="#c4b5ff"
-          active={focus === "connexus"}
-        />
-      </Pickable>
+      {focus === "eeg" ? (
+        <Pickable id="eeg" onPick={onPick}>
+          <ScalpElectrodes active />
+        </Pickable>
+      ) : null}
+      {focus === "surface" ? (
+        <Pickable id="surface" onPick={onPick}>
+          <SurfaceFilm active />
+        </Pickable>
+      ) : null}
+      {focus === "stent" ? (
+        <Pickable id="stent" onPick={onPick}>
+          <Stent active />
+        </Pickable>
+      ) : null}
+      {focus === "utah" ? (
+        <Pickable id="utah" onPick={onPick}>
+          <NeedleBed
+            at={[0.58, 0.3, 0.18]}
+            rows={4}
+            cols={4}
+            spacing={0.035}
+            length={0.16}
+            radius={0.008}
+            color="#d5dbe3"
+            active
+          />
+        </Pickable>
+      ) : null}
+      {focus === "threads" ? (
+        <Pickable id="threads" onPick={onPick}>
+          <Threads active />
+        </Pickable>
+      ) : null}
+      {focus === "connexus" ? (
+        <Pickable id="connexus" onPick={onPick}>
+          <NeedleBed
+            at={[0.5, 0.02, 0.28]}
+            rows={5}
+            cols={3}
+            spacing={0.022}
+            length={0.14}
+            radius={0.005}
+            color="#c4b5ff"
+            active
+          />
+        </Pickable>
+      ) : null}
     </>
   );
 }
@@ -343,24 +366,29 @@ export function CutawayView({
   return (
     <Canvas
       aria-label="Pial surface from one public MRI. Click a part, or choose one in the list."
-      camera={{ position: [1.85, 0.42, 1.45], fov: 32, near: 0.05, far: 20 }}
+      camera={{ position: [1.15, 0.22, 1.02], fov: 26, near: 0.02, far: 20 }}
       dpr={[1, 2]}
       frameloop={reduced ? "demand" : "always"}
       gl={{ antialias: true, localClippingEnabled: true, alpha: true }}
+      onCreated={({ gl }) => {
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1.12;
+      }}
     >
-      <hemisphereLight args={["#f4ebe6", "#141820", 0.55]} />
-      <directionalLight position={[2.4, 3.2, 1.6]} intensity={2.4} />
-      <directionalLight position={[-2.2, 0.4, -1.4]} intensity={0.55} color="#c9b7d8" />
-      <directionalLight position={[0.2, -1.2, 2.4]} intensity={0.35} color="#ffd8cc" />
+      <Studio />
+      <hemisphereLight args={["#fff4ee", "#2a1c18", 0.28]} />
+      <directionalLight position={[2.6, 3.4, 1.8]} intensity={3.1} color="#fffaf6" />
+      <directionalLight position={[-2.4, 1.2, -1.6]} intensity={0.9} color="#ffd2c6" />
+      <directionalLight position={[0.4, 0.6, -3.2]} intensity={1.35} color="#ffffff" />
       <Scene focus={focus} onPick={onPick} />
       <OrbitControls
         enablePan={false}
         autoRotate={!reduced}
-        autoRotateSpeed={0.35}
+        autoRotateSpeed={0.22}
         enableDamping
-        minDistance={1.35}
-        maxDistance={4.2}
-        target={[0, 0.02, 0]}
+        minDistance={0.95}
+        maxDistance={3.4}
+        target={[0, 0.04, 0]}
       />
     </Canvas>
   );

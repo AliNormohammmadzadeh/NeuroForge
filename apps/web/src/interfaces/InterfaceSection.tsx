@@ -7,7 +7,7 @@ function viewNote(focus: string): string {
   if (focus === "scalp") return "The scalp is forward. The electrode that stops here is scalp EEG.";
   if (focus === "skull") return "The scalp is faded so the bone is the part you can see.";
   if (focus === "cortex") return "Scalp and skull are faded. This pial surface is from OpenNeuro ds006128, subject 01.";
-  return "The bright object is the electrode. Scalp, skull, and cortex stay in the drawing so you can see the depth.";
+  return "The electrode is the only object added to the surface. Choose Scalp or Skull when you want those shells.";
 }
 
 export function DeviceRail({
