@@ -264,6 +264,18 @@ footer {
 
 .steps { counter-reset: step; }
 
+.steps.later li::before {
+  content: "Later";
+  counter-increment: none;
+  width: auto;
+  height: auto;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .steps h3 { margin: 0; font-size: 1.15rem; }
 
 .datasets { display: grid; gap: 0.7rem; margin-top: 1rem; }

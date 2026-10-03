@@ -99,6 +99,9 @@ describe("AtlasPage", () => {
     );
     expect(screen.getByText(/not a procedure/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Start here." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What we add later." })).toBeInTheDocument();
+    expect(screen.getByText("Train on a local BIDS recording")).toBeInTheDocument();
+    expect(screen.getAllByText("Later").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/neuroforge demo/).length).toBeGreaterThan(0);
     expect(datasetLink()).toHaveAttribute("href", "https://moabb.neurotechx.com/docs/index.html");
     expect(screen.getByText(/Use it when latency matters/)).toBeInTheDocument();
