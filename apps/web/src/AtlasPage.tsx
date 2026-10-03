@@ -144,6 +144,7 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
                   </button>
                 ))}
               </div>
+              <p className="rail-foot">Drag the open cloud to turn it.</p>
             </aside>
             <div className="dock-gap" />
             <aside className="detail">
@@ -183,13 +184,6 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
             </aside>
           </div>
         )}
-        <p className="hint">
-          {libraryOpen
-            ? ""
-            : scene === "atlas"
-              ? "Pick a field, then a name. Drag the open cloud to turn it."
-              : "Click a part. Drag the open scene to turn it."}
-        </p>
       </div>
     </div>
   );

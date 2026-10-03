@@ -57,6 +57,7 @@ export function DeviceRail({
           );
         })}
       </ul>
+      <p className="rail-foot">Drag the open scene to turn it.</p>
     </aside>
   );
 }

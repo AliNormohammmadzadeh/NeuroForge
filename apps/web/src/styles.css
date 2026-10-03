@@ -413,23 +413,11 @@ footer { padding: 1.4rem 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
 
 .guide strong, .part-notes strong { color: var(--ink); }
 
-.hint {
-  position: absolute;
-  left: 50%;
-  bottom: 0.85rem;
-  transform: translateX(-50%);
-  margin: 0;
-  max-width: 28rem;
-  text-align: center;
-  pointer-events: none;
+.rail-foot {
+  margin: 0.8rem 0 0;
   font-size: 0.75rem;
   color: var(--muted);
-  background: rgba(12, 15, 20, 0.82);
-  border-radius: 999px;
-  padding: 0.32rem 0.75rem;
 }
-
-.library-open .hint { display: none; }
 
 .algo { cursor: pointer; }
 
