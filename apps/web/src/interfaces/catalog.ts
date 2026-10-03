@@ -1,3 +1,8 @@
+export interface PartStep {
+  title: string;
+  body: string;
+}
+
 export interface HeadPart {
   slug: "scalp" | "skull" | "cortex";
   name: string;
@@ -5,6 +10,7 @@ export interface HeadPart {
   color: string;
   what: string;
   signal: string;
+  steps: readonly PartStep[];
 }
 
 export const HEAD_PARTS: readonly HeadPart[] = [
@@ -15,6 +21,20 @@ export const HEAD_PARTS: readonly HeadPart[] = [
     color: "#e7c2b4",
     what: "Skin over the skull. A scalp electrode stops on this surface.",
     signal: "The voltage here is a blurred sum. A single spike has already been smoothed away.",
+    steps: [
+      {
+        title: "Where the electrode stops",
+        body: "Skin over the skull. A scalp electrode ends on this surface. Nothing is implanted.",
+      },
+      {
+        title: "What still arrives",
+        body: "A single spike does not. Bone and skin have already turned it into a slow sum of many neurons.",
+      },
+      {
+        title: "What a model can use",
+        body: "Rhythms and spatial patterns. CSP and EEG-Conformer are built for that sum, not for one neuron.",
+      },
+    ],
   },
   {
     slug: "skull",
@@ -23,6 +43,20 @@ export const HEAD_PARTS: readonly HeadPart[] = [
     color: "#f4efe4",
     what: "Bone between the scalp and the brain. This shell is a drawing, not a measured skull.",
     signal: "Bone spreads the electrical field, so a spike becomes a slow rhythm by the time it reaches the scalp.",
+    steps: [
+      {
+        title: "What this shell is",
+        body: "Bone between the scalp and the brain. The shell in the scene is a drawing, not bone from the MRI.",
+      },
+      {
+        title: "What the bone does to a spike",
+        body: "It spreads the electrical field. By the time the voltage reaches the scalp, the spike is a slow rhythm.",
+      },
+      {
+        title: "Why the two recordings differ",
+        body: "An electrode outside the bone hears that spread field. An electrode under the bone hears a smaller patch of cortex.",
+      },
+    ],
   },
   {
     slug: "cortex",
@@ -31,6 +65,20 @@ export const HEAD_PARTS: readonly HeadPart[] = [
     color: "#d7b2a6",
     what: "The wrinkled surface in the scene is a pial mesh from one public MRI, OpenNeuro ds006128 subject 01. Cerebellum and brainstem are included. It is not a clinical scan.",
     signal: "A surface film sits on the gyri. Needles and threads end a short distance inside. A stent listens from a vein along the top.",
+    steps: [
+      {
+        title: "Whose surface this is",
+        body: "The pial mesh of OpenNeuro ds006128, subject 01, released CC0. Cerebellum and brainstem are from the same recording. It is not a clinical scan.",
+      },
+      {
+        title: "Gyri and sulci",
+        body: "Ridges are gyri. Creases are sulci. The darker paint marks the creases so the folds stay readable. Gyri are not named on the mesh yet.",
+      },
+      {
+        title: "Where each electrode aims",
+        body: "A film lies on the gyri. Needles and threads end a short distance in. A stent listens from a vein along the top, through the vessel wall.",
+      },
+    ],
   },
 ];
 
@@ -51,6 +99,7 @@ export interface InterfaceModel {
   url: string;
   linkLabel: string;
   status: string;
+  steps: readonly PartStep[];
 }
 
 export const INTERFACES: readonly InterfaceModel[] = [
@@ -67,6 +116,20 @@ export const INTERFACES: readonly InterfaceModel[] = [
     url: "https://moabb.neurotechx.com/docs/index.html",
     linkLabel: "MOABB",
     status: "Noninvasive",
+    steps: [
+      {
+        title: "Nothing crosses the skin",
+        body: "The disc sits on the scalp. Skull and scalp stand between it and the cortex. This is the signal the EEG models here train on.",
+      },
+      {
+        title: "The shape of the recording",
+        body: "A batch is trials, then channels, then samples. Motor imagery is the usual first task: the person imagines a movement, and the rhythm changes.",
+      },
+      {
+        title: "Where to read next",
+        body: "MOABB is the benchmark library for this signal. Open that link, then keep any files local. This site does not download them.",
+      },
+    ],
   },
   {
     slug: "surface",
@@ -81,6 +144,20 @@ export const INTERFACES: readonly InterfaceModel[] = [
     url: "https://www.precisionneuro.io/",
     linkLabel: "Precision Neuroscience",
     status: "Investigational as an implant",
+    steps: [
+      {
+        title: "On the surface, not in it",
+        body: "A thin film lies on the cortex, under the skull, and does not enter the tissue. Hospital ECoG grids are the coarser version of the same placement.",
+      },
+      {
+        title: "A field from one patch",
+        body: "It hears the local field under the film, including faster activity than a scalp electrode can see. Precision's public description counts 1,024 electrodes. That count is not a result reproduced here.",
+      },
+      {
+        title: "Still not a spike list",
+        body: "The recording is a surface field potential. A decoder for that patch is the matching model, not a single-neuron model.",
+      },
+    ],
   },
   {
     slug: "stent",
@@ -95,6 +172,20 @@ export const INTERFACES: readonly InterfaceModel[] = [
     url: "https://synchron.com/technology",
     linkLabel: "Synchron",
     status: "Investigational",
+    steps: [
+      {
+        title: "In the vein, beside cortex",
+        body: "Electrodes on a stent sit in the superior sagittal sinus, next to motor cortex. The skull is not opened to place the array. The scene shows the vessel. It is not a catheterization.",
+      },
+      {
+        title: "A field through the wall",
+        body: "The first published system used 16 electrodes and recorded electrocorticography through the vessel wall. That is a field potential, not a single-neuron spike.",
+      },
+      {
+        title: "What the public record is",
+        body: "Synchron describes the Stentrode as investigational. The electrode count is from that published system, not a number this repository has rerun.",
+      },
+    ],
   },
   {
     slug: "utah",
@@ -109,6 +200,20 @@ export const INTERFACES: readonly InterfaceModel[] = [
     url: "https://blackrockneurotech.com/products/utah-array/",
     linkLabel: "Blackrock Neurotech",
     status: "Human research since 2004",
+    steps: [
+      {
+        title: "Needles, not a film",
+        body: "A bed of stiff silicon needles crosses the surface and ends in the cortex, about a millimeter and a half in. Blackrock's Utah array is the array BrainGate used.",
+      },
+      {
+        title: "Spikes at the tip",
+        body: "Each needle can hear spikes from neurons close to its tip. That is the event a spike model such as LFADS is built for.",
+      },
+      {
+        title: "The limitation",
+        body: "The needles are stiff. Flexible threads are a later design trying to avoid that stiffness. This card does not describe how an array is placed.",
+      },
+    ],
   },
   {
     slug: "threads",
@@ -123,6 +228,20 @@ export const INTERFACES: readonly InterfaceModel[] = [
     url: "https://neuralink.com/technology/",
     linkLabel: "Neuralink",
     status: "Investigational",
+    steps: [
+      {
+        title: "Threads in the cortex",
+        body: "Fine polymer threads leave a sealed implant and rest near neurons. The implant records and sends the signal wirelessly. The picture is not the robot and not a procedure.",
+      },
+      {
+        title: "What the brochure counts",
+        body: "Neuralink's public description says the electrodes detect action potentials. The N1 brochure counts 1,024 electrodes on 64 threads. The PRIME study device is investigational.",
+      },
+      {
+        title: "Which model hears spikes",
+        body: "A list of spikes is not an EEG rhythm. LFADS is the spike model in this repository. EEG-Conformer is the wrong tool for this signal.",
+      },
+    ],
   },
   {
     slug: "connexus",
@@ -137,6 +256,20 @@ export const INTERFACES: readonly InterfaceModel[] = [
     url: "https://paradromics.com/connexus/",
     linkLabel: "Paradromics",
     status: "Investigational",
+    steps: [
+      {
+        title: "A denser needle bed",
+        body: "Many fine electrodes reach about 1.5 mm into the cortex, the depth Paradromics publishes for Connexus. The device is investigational.",
+      },
+      {
+        title: "Their public description",
+        body: "The company describes recordings from individual neurons, then a wireless link to an external decoder aimed at speech. The public count is 421 electrodes. That count is not a result reproduced here.",
+      },
+      {
+        title: "Leave the marketing number out",
+        body: "Do not copy a bits-per-second claim onto a card. A benchmark stays empty until a run in this repository reproduces it.",
+      },
+    ],
   },
 ];
 

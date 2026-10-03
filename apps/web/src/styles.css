@@ -268,7 +268,7 @@ footer { padding: 1.4rem 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
 
 .steps { list-style: none; margin: 0.8rem 0 0; padding: 0; display: grid; gap: 0.6rem; counter-reset: step; }
 
-.steps li {
+.steps > li {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.7rem;
@@ -278,7 +278,7 @@ footer { padding: 1.4rem 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
   padding: 0.75rem 0.85rem;
 }
 
-.steps li::before {
+.steps > li::before {
   content: counter(step);
   counter-increment: step;
   color: var(--eeg);
@@ -291,11 +291,48 @@ footer { padding: 1.4rem 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
   font-size: 0.75rem;
 }
 
-.steps.later li { grid-template-columns: 1fr; }
+.steps.later > li { grid-template-columns: 1fr; }
 
-.steps.later li::before { content: none; }
+.steps.later > li::before { content: none; }
 
 .steps h3 { margin: 0; font-size: 1.05rem; }
+
+.substeps {
+  list-style: none;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+  counter-reset: sub;
+}
+
+.substeps > li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  padding: 0.45rem 0 0;
+}
+
+.substeps > li::before {
+  content: counter(sub);
+  counter-increment: sub;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  width: 1.25rem;
+  height: 1.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 0.68rem;
+}
+
+.substeps h3, .substeps h4 { margin: 0; font-size: 0.92rem; }
+
+.substeps p, .steps > li > div > p { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
 
 .datasets { display: grid; gap: 0.6rem; margin-top: 0.8rem; }
 

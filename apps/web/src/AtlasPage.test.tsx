@@ -97,12 +97,19 @@ describe("AtlasPage", () => {
       "href",
       "https://neuralink.com/technology/",
     );
-    expect(screen.getByText(/not a procedure/)).toBeInTheDocument();
+    expect(screen.getAllByText(/not a procedure/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: /Skull/ }));
     expect(screen.getByRole("heading", { name: "Skull" })).toBeInTheDocument();
     expect(screen.getByText(/faded so the bone is the part you can see/)).toBeInTheDocument();
+    expect(screen.getByText("Smaller steps")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What the bone does to a spike" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Library" }));
     expect(screen.getByRole("heading", { name: "Start here." })).toBeInTheDocument();
+    for (const part of ["The head", "The electrode", "One signal", "A split you can publish", "Train, score, stop"]) {
+      expect(screen.getByRole("heading", { name: part })).toBeInTheDocument();
+    }
+    expect(screen.getByRole("heading", { name: "Run neuroforge demo" })).toBeInTheDocument();
+    expect(screen.getByText(/The 1\.00 is the bug/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "What we add later." })).toBeInTheDocument();
     expect(screen.getByText("Train on a local BIDS recording")).toBeInTheDocument();
     expect(screen.getAllByText("Later").length).toBeGreaterThan(0);
@@ -116,7 +123,8 @@ describe("AtlasPage", () => {
   it("filters cards and selects an algorithm without leaving the page", () => {
     renderAtlas();
     fireEvent.click(screen.getByRole("button", { name: /Endovascular stent/ }));
-    expect(screen.getByText(/superior sagittal sinus/)).toBeInTheDocument();
+    expect(screen.getAllByText(/superior sagittal sinus/).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "In the vein, beside cortex" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Library" }));
     fireEvent.change(screen.getByPlaceholderText("CSP, DANDI, LFADS"), {
       target: { value: "latency" },
