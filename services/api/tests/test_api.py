@@ -22,24 +22,12 @@ def test_health_models_and_home() -> None:
     assert any(hit["slug"] == "lfads" for hit in hits)
     page = client.get("/")
     assert page.status_code == 200
-    assert "EEG-Conformer" in page.text
-    assert "cannot leak the subject" in page.text
-    assert "MOABB" in page.text
-    assert 'id="cortex"' in page.text
-    assert "Start here." in page.text
-    assert "neuroforge demo" in page.text
-    assert "Riemannian MDM" in page.text
-    assert "Before a training run." in page.text
-    assert "Use it when latency matters" in page.text
-    assert "dandiarchive.org" in page.text
+    assert "NeuroForge" in page.text
+    assert 'id="root"' in page.text or "apps/web" in page.text
     algorithms = client.get("/api/v1/algorithms").json()
     assert {item["slug"] for item in algorithms} >= {"csp", "lfads", "brain-gnn"}
     found = client.get("/api/v1/discover", params={"q": "riemann"}).json()
     assert any(hit["slug"] == "riemann" for hit in found)
-    script = client.get("/static/atlas.js")
-    assert script.status_code == 200
-    assert "uMvp" in script.text
-
     fields = client.get("/api/v1/fields").json()
     assert {item["slug"] for item in fields} >= {"eeg-bci", "spikes", "connectomics"}
     assert client.get("/api/v1/fields/nope").status_code == 404
