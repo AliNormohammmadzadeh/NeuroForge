@@ -1,33 +1,52 @@
 import { matchesQuery } from "../content";
-import { INTERFACES, interfaceBySlug } from "./catalog";
+import { HEAD_PARTS, INTERFACES, headPartBySlug, interfaceBySlug } from "./catalog";
+
+const CHAIN_LABELS = ["Source", "Sensor", "Signal", "Use"] as const;
+
+function viewNote(focus: string): string {
+  if (focus === "scalp") return "The scalp is forward. The electrode that stops here is scalp EEG.";
+  if (focus === "skull") return "The scalp is faded so the bone is the part you can see.";
+  if (focus === "cortex") return "Scalp and skull are faded. This is the surface the electrodes are aimed at.";
+  return "The bright object is the electrode. Scalp, skull, and cortex stay in the drawing so you can see the depth.";
+}
 
 export function DeviceRail({
-  slug,
+  focus,
   query,
   onSelect,
 }: {
-  slug: string;
+  focus: string;
   query: string;
   onSelect: (slug: string) => void;
 }) {
   return (
     <aside className="rail">
-      <p className="kicker">How a recording is made</p>
-      <p className="lede">
-        Closer to the neuron, the voltage is larger. Further away, it is easier to place. The scene
-        is a schematic, not a scan and not a surgical plan.
-      </p>
+      <p className="kicker">Work through the parts</p>
+      <p className="lede">Select a part of the head, then an electrode. The card explains that part.</p>
+      <p className="group-label">The head</p>
+      <ul className="approaches">
+        {HEAD_PARTS.map((item) => {
+          const text = `${item.name} ${item.role} ${item.what} ${item.signal}`;
+          return (
+            <li key={item.slug} className={matchesQuery(text, query) ? "" : "is-hidden"}>
+              <button type="button" aria-pressed={item.slug === focus} onClick={() => onSelect(item.slug)}>
+                <i style={{ background: item.color }} />
+                <span>
+                  <strong>{item.name}</strong>
+                  <em>{item.role}</em>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="group-label">The electrode</p>
       <ul className="approaches">
         {INTERFACES.map((item) => {
           const text = `${item.name} ${item.example} ${item.sits} ${item.hears}`;
-          const hidden = matchesQuery(text, query) ? "" : "is-hidden";
           return (
-            <li key={item.slug} className={hidden}>
-              <button
-                type="button"
-                aria-pressed={item.slug === slug}
-                onClick={() => onSelect(item.slug)}
-              >
+            <li key={item.slug} className={matchesQuery(text, query) ? "" : "is-hidden"}>
+              <button type="button" aria-pressed={item.slug === focus} onClick={() => onSelect(item.slug)}>
                 <i style={{ background: item.color }} />
                 <span>
                   <strong>{item.name}</strong>
@@ -38,12 +57,36 @@ export function DeviceRail({
           );
         })}
       </ul>
+      <p className="rail-foot">Drag the open scene to turn it.</p>
     </aside>
   );
 }
 
-export function DeviceDetail({ slug }: { slug: string }) {
-  const current = interfaceBySlug(slug);
+export function DeviceDetail({ focus }: { focus: string }) {
+  const layer = headPartBySlug(focus);
+  if (layer) {
+    return (
+      <aside className="detail">
+        <article className="explain">
+          <p className="kicker">{layer.role}</p>
+          <h2>{layer.name}</h2>
+          <p>{viewNote(focus)}</p>
+          <dl className="facts">
+            <div>
+              <dt>What it is</dt>
+              <dd>{layer.what}</dd>
+            </div>
+            <div>
+              <dt>What the signal does</dt>
+              <dd>{layer.signal}</dd>
+            </div>
+          </dl>
+        </article>
+      </aside>
+    );
+  }
+
+  const current = interfaceBySlug(focus);
   return (
     <aside className="detail">
       <article className="explain">
@@ -52,11 +95,23 @@ export function DeviceDetail({ slug }: { slug: string }) {
           {current.name}
           <span> {current.example}</span>
         </h2>
-        <p>{current.sits}</p>
-        <p>{current.hears}</p>
+        <p>{viewNote(focus)}</p>
+        <dl className="facts">
+          <div>
+            <dt>Where it sits</dt>
+            <dd>{current.sits}</dd>
+          </div>
+          <div>
+            <dt>What it hears</dt>
+            <dd>{current.hears}</dd>
+          </div>
+        </dl>
         <ol className="chain">
-          {current.chain.map((step) => (
-            <li key={step}>{step}</li>
+          {current.chain.map((step, index) => (
+            <li key={step}>
+              <span>{CHAIN_LABELS[index]}</span>
+              {step}
+            </li>
           ))}
         </ol>
         <p>{current.note}</p>

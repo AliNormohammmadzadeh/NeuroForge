@@ -98,6 +98,9 @@ describe("AtlasPage", () => {
       "https://neuralink.com/technology/",
     );
     expect(screen.getByText(/not a procedure/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Skull/ }));
+    expect(screen.getByRole("heading", { name: "Skull" })).toBeInTheDocument();
+    expect(screen.getByText(/faded so the bone is the part you can see/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Library" }));
     expect(screen.getByRole("heading", { name: "Start here." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "What we add later." })).toBeInTheDocument();

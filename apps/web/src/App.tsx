@@ -65,12 +65,12 @@ export function App() {
           </Suspense>
         </CortexBoundary>
       )}
-      renderCutaway={(slug) => (
+      renderCutaway={({ focus, onPick }) => (
         <CortexBoundary
           fallback={<p className="hud">The cutaway did not start. The notes below still work.</p>}
         >
           <Suspense fallback={<p className="hud">Loading the cutaway.</p>}>
-            <CutawayView slug={slug} />
+            <CutawayView focus={focus} onPick={onPick} />
           </Suspense>
         </CortexBoundary>
       )}

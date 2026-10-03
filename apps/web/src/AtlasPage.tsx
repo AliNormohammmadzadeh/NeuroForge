@@ -8,7 +8,7 @@ import type { AtlasData, CortexSelection } from "./types";
 export interface AtlasPageProps {
   data: AtlasData;
   renderCortex: (props: CortexSelection) => ReactNode;
-  renderCutaway: (slug: string) => ReactNode;
+  renderCutaway: (props: { focus: string; onPick: (id: string) => void }) => ReactNode;
 }
 
 type Scene = "interfaces" | "atlas";
@@ -17,10 +17,9 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
   const [query, setQuery] = useState("");
   const [scene, setScene] = useState<Scene>("interfaces");
   const [libraryOpen, setLibraryOpen] = useState(false);
-  const [device, setDevice] = useState("threads");
+  const [focus, setFocus] = useState("threads");
   const [fieldSlug, setFieldSlug] = useState<string | null>(null);
   const [algorithmSlug, setAlgorithmSlug] = useState<string | null>(null);
-  const [count, setCount] = useState(0);
   const selected = data.algorithms.find((item) => item.slug === algorithmSlug) ?? null;
   const cortexFields = data.fields.filter((field) =>
     (CORTEX_FIELDS as readonly string[]).includes(field.slug),
@@ -66,9 +65,8 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
               fieldSlug,
               algorithmSlug,
               onPick: pickAlgorithm,
-              onCount: setCount,
             })
-          : renderCutaway(device)}
+          : renderCutaway({ focus, onPick: setFocus })}
       </div>
       <div className={libraryOpen ? "chrome library-open" : "chrome"}>
         <header className="top">
@@ -103,9 +101,9 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
           />
         ) : scene === "interfaces" ? (
           <div className="dock">
-            <DeviceRail slug={device} query={query} onSelect={setDevice} />
+            <DeviceRail focus={focus} query={query} onSelect={setFocus} />
             <div className="dock-gap" />
-            <DeviceDetail slug={device} />
+            <DeviceDetail focus={focus} />
           </div>
         ) : (
           <div className="dock">
@@ -146,52 +144,46 @@ export function AtlasPage({ data, renderCortex, renderCutaway }: AtlasPageProps)
                   </button>
                 ))}
               </div>
+              <p className="rail-foot">Drag the open cloud to turn it.</p>
             </aside>
             <div className="dock-gap" />
             <aside className="detail">
               {selected ? (
                 <AlgorithmCard algorithm={selected} />
+              ) : fieldSlug ? (
+                <article className="explain">
+                  <p className="kicker">This field</p>
+                  <h2>{cortexFields.find((field) => field.slug === fieldSlug)?.name}</h2>
+                  <p>{cortexFields.find((field) => field.slug === fieldSlug)?.summary}</p>
+                  <p>Choose a name on the left. The card says what that algorithm is and when to use it.</p>
+                </article>
               ) : (
                 <article className="explain">
-                  <p className="kicker">Algorithm map</p>
-                  <h2>The sources behind the recipes.</h2>
-                  <p>
-                    {count > 0
-                      ? `${count} sites. Drag to orbit, then choose a name.`
-                      : "Drag to orbit, then choose a name."}
-                  </p>
+                  <p className="kicker">How to use the map</p>
+                  <h2>Three kinds of signal.</h2>
+                  <ol className="guide">
+                    <li>
+                      <strong>Pick a field.</strong> Green is EEG, amber is spikes, blue is connectomes.
+                    </li>
+                    <li>
+                      <strong>Pick a name.</strong> The card says what it is and when to use it.
+                    </li>
+                    <li>
+                      <strong>Open Library</strong> for the dataset, the train command, and the paper.
+                    </li>
+                  </ol>
+                  <ul className="part-notes">
+                    {cortexFields.map((field) => (
+                      <li key={field.slug}>
+                        <strong>{field.name}.</strong> {field.summary}
+                      </li>
+                    ))}
+                  </ul>
                 </article>
               )}
             </aside>
           </div>
         )}
-        <ul className="legend scene-legend">
-          {scene === "atlas" ? (
-            <>
-              <li>
-                <i style={{ background: "#3ddc97" }} /> EEG
-              </li>
-              <li>
-                <i style={{ background: "#e6a15c" }} /> Spikes
-              </li>
-              <li>
-                <i style={{ background: "#7eb6ff" }} /> Connectomes
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <i style={{ background: "#e7c2b4" }} /> Scalp
-              </li>
-              <li>
-                <i style={{ background: "#f4efe4" }} /> Skull
-              </li>
-              <li>
-                <i style={{ background: "#d7b2a6" }} /> Cortex
-              </li>
-            </>
-          )}
-        </ul>
       </div>
     </div>
   );
