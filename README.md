@@ -36,7 +36,7 @@ pnpm --dir apps/web install
 pnpm --dir apps/web dev
 ```
 
-Open `http://127.0.0.1:5173`. The atlas is a React app, and the page is one React Three Fiber scene. Interfaces lets you select each part of the head and each electrode: the shells peel back, and the card says what that part is and what the signal does there. Atlas is the algorithm map: pick a field, then a name, and the card says what it is and when to use it. Library holds the roadmap, the later list, datasets, models, and papers. The page reads `/api/v1/fields`, `/api/v1/algorithms`, and `/api/v1/models`. `pnpm --dir apps/web build` writes `apps/web/dist`, and the API serves that build at `http://127.0.0.1:8000`. The broader Next.js explorer in the design notes below is still a design note.
+Open `http://127.0.0.1:5173`. The atlas is a React app, and the page is one React Three Fiber scene. The cortex is the pial surface of OpenNeuro ds006128 subject 01, released CC0, with the cerebellum and brainstem from the same surfaces. Scalp and skull are still smooth shells. Interfaces lets you select each part: the shells fade, and the card says what that part is and what the signal does there. Atlas is the algorithm map. Library holds the roadmap, the later list, datasets, models, and papers. The page reads `/api/v1/fields`, `/api/v1/algorithms`, and `/api/v1/models`. `pnpm --dir apps/web build` writes `apps/web/dist`, and the API serves that build at `http://127.0.0.1:8000`. The broader Next.js explorer in the design notes below is still a design note.
 
 What we add later, and have not built:
 
@@ -44,7 +44,7 @@ What we add later, and have not built:
 - One reproduced benchmark on a model card
 - The YAML configs and Lightning modules on the `neuroforge train` path
 - The exported ONNX decoder, run in the browser on a synthetic trial
-- A cited cortical surface in place of the schematic cutaway
+- A skull from the same MRI. The cortex is already the pial surface of OpenNeuro ds006128 subject 01
 - A connectome you can threshold, and one channel drawn over time
 - A page per model and per dataset
 - Literature search on the site, then search by meaning, still without storing full papers
