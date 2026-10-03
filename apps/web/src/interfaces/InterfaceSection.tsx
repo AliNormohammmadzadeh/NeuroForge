@@ -1,4 +1,5 @@
 import { matchesQuery } from "../content";
+import { LearnBlock } from "../LearnBits";
 import { HEAD_PARTS, INTERFACES, headPartBySlug, interfaceBySlug } from "./catalog";
 
 const CHAIN_LABELS = ["Source", "Sensor", "Signal", "Use"] as const;
@@ -44,7 +45,7 @@ export function DeviceRail({
       <p className="group-label">The head</p>
       <ul className="approaches">
         {HEAD_PARTS.map((item) => {
-          const text = `${item.name} ${item.role} ${item.what} ${item.signal} ${item.steps.map((step) => `${step.title} ${step.body}`).join(" ")}`;
+          const text = `${item.name} ${item.role} ${item.what} ${item.signal} ${item.learn.watchNote} ${item.learn.sources.map((source) => source.label).join(" ")} ${item.steps.map((step) => `${step.title} ${step.body}`).join(" ")}`;
           return (
             <li key={item.slug} className={matchesQuery(text, query) ? "" : "is-hidden"}>
               <button type="button" aria-pressed={item.slug === focus} onClick={() => onSelect(item.slug)}>
@@ -61,7 +62,7 @@ export function DeviceRail({
       <p className="group-label">The electrode</p>
       <ul className="approaches">
         {INTERFACES.map((item) => {
-          const text = `${item.name} ${item.example} ${item.sits} ${item.hears} ${item.steps.map((step) => `${step.title} ${step.body}`).join(" ")}`;
+          const text = `${item.name} ${item.example} ${item.sits} ${item.hears} ${item.learn.watchNote} ${item.learn.sources.map((source) => source.label).join(" ")} ${item.steps.map((step) => `${step.title} ${step.body}`).join(" ")}`;
           return (
             <li key={item.slug} className={matchesQuery(text, query) ? "" : "is-hidden"}>
               <button type="button" aria-pressed={item.slug === focus} onClick={() => onSelect(item.slug)}>
@@ -100,6 +101,7 @@ export function DeviceDetail({ focus }: { focus: string }) {
             </div>
           </dl>
           <PartSteps steps={layer.steps} />
+          <LearnBlock video={layer.learn.video} watchNote={layer.learn.watchNote} sources={layer.learn.sources} />
         </article>
       </aside>
     );
@@ -134,6 +136,7 @@ export function DeviceDetail({ focus }: { focus: string }) {
           ))}
         </ol>
         <PartSteps steps={current.steps} />
+        <LearnBlock video={current.learn.video} watchNote={current.learn.watchNote} sources={current.learn.sources} />
         <p>{current.note}</p>
         <p className="access">
           <a href={current.url} rel="noopener noreferrer">

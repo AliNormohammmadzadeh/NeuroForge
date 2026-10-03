@@ -16,6 +16,11 @@ describe("interface catalog", () => {
     expect(new Set(INTERFACES.map((item) => item.slug)).size).toBe(INTERFACES.length);
     for (const item of [...HEAD_PARTS, ...INTERFACES]) {
       expect(item.steps.length).toBeGreaterThanOrEqual(3);
+      expect(item.learn.sources.length).toBeGreaterThan(0);
+      expect(item.learn.watchNote.length).toBeGreaterThan(20);
+      for (const source of item.learn.sources) {
+        expect(source.href.startsWith("https://")).toBe(true);
+      }
       for (const step of item.steps) {
         expect(step.title.length).toBeGreaterThan(0);
         expect(step.body.length).toBeGreaterThan(40);

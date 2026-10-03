@@ -103,6 +103,10 @@ describe("AtlasPage", () => {
     expect(screen.getByText(/faded so the bone is the part you can see/)).toBeInTheDocument();
     expect(screen.getByText("Smaller steps")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "What the bone does to a spike" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /EEG, ECoG, LFP and spikes/ })).toHaveAttribute(
+      "href",
+      "https://doi.org/10.1038/nrn3241",
+    );
     fireEvent.click(screen.getByRole("button", { name: "Library" }));
     expect(screen.getByRole("heading", { name: "Start here." })).toBeInTheDocument();
     for (const part of ["The head", "The electrode", "One signal", "A split you can publish", "Train, score, stop"]) {
@@ -110,6 +114,14 @@ describe("AtlasPage", () => {
     }
     expect(screen.getByRole("heading", { name: "Run neuroforge demo" })).toBeInTheDocument();
     expect(screen.getByText(/The 1\.00 is the bug/)).toBeInTheDocument();
+    expect(screen.getByTitle("2-Minute Neuroscience: Cerebral Cortex")).toHaveAttribute(
+      "src",
+      "https://www.youtube-nocookie.com/embed/7TK1LpjV5bI",
+    );
+    expect(screen.getByRole("link", { name: /OpenNeuro ds006128/ })).toHaveAttribute(
+      "href",
+      "https://openneuro.org/datasets/ds006128/versions/1.0.11",
+    );
     expect(screen.getByRole("heading", { name: "What we add later." })).toBeInTheDocument();
     expect(screen.getByText("Train on a local BIDS recording")).toBeInTheDocument();
     expect(screen.getAllByText("Later").length).toBeGreaterThan(0);
@@ -142,5 +154,21 @@ describe("AtlasPage", () => {
       "true",
     );
     expect(screen.queryByText("Reference algorithm")).not.toBeInTheDocument();
+  });
+
+  it("opens a part from the roadmap and keeps the source on that card", () => {
+    renderAtlas();
+    fireEvent.click(screen.getByRole("button", { name: "Library" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open Cortex" }));
+    expect(screen.getByRole("heading", { name: "Cortex" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Start here." })).not.toBeInTheDocument();
+    expect(screen.getByTitle("2-Minute Neuroscience: Cerebral Cortex")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Dataset DOI/ })).toHaveAttribute(
+      "href",
+      "https://doi.org/10.18112/openneuro.ds006128.v1.0.11",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Library" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open the atlas" }));
+    expect(screen.getByRole("heading", { name: "Three kinds of signal." })).toBeInTheDocument();
   });
 });
