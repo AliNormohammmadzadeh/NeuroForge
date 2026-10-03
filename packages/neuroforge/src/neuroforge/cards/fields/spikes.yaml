@@ -1,0 +1,99 @@
+slug: spikes
+name: Spikes and latent dynamics
+kicker: Field 02
+hue: "#e6a15c"
+retrieved_on: "2026-10-03"
+snapshot_source: OpenAlex and arXiv
+summary: >
+  A population recording is a list of spike times, not a voltage trace. The
+  public starting points are the Neural Latents dandisets, the Allen
+  Neuropixels tables, and the International Brain Laboratory map. NWB is the
+  file. SpikeInterface is how most of those spikes were sorted. LFADS is the
+  latent-dynamics model implemented here.
+resources:
+  - slug: dandi
+    name: DANDI Archive
+    kind: archive
+    url: https://dandiarchive.org
+    access: uv sync --extra remote, then examples/stream_dandi.py. Tests use a local NWB file.
+    summary: >
+      The archive for neurophysiology in NWB. Stream an asset by HTTP range
+      instead of downloading a whole session.
+  - slug: mc-maze
+    name: MC_Maze (Dandiset 000128)
+    kind: benchmark
+    url: https://dandiarchive.org/dandiset/000128
+    access: neuroforge train stays on synthetic spikes until this file is local.
+    summary: >
+      Macaque maze-reaching spikes from the Neural Latents Benchmark. The
+      LFADS recipe in this repo is named after this set and does not download it.
+  - slug: neural-latents
+    name: Neural Latents Benchmark
+    kind: benchmark
+    url: https://neurallatents.github.io/
+    access: Scores are bits per spike on held-out neurons or time. co_bps is that metric.
+    summary: >
+      The common task for latent variable models of population activity.
+      MC_Maze, MC_RTT, and Area2_Bump are the sets to read first.
+  - slug: allen-neuropixels
+    name: Allen Visual Coding Neuropixels
+    kind: archive
+    url: https://portal.brain-map.org/
+    access: AllenSDK after you have chosen a session. Not fetched by the test suite.
+    summary: >
+      Large mouse Neuropixels sessions with a repeated natural-movie stimulus.
+      The right scale check after a method works on MC_Maze.
+  - slug: ibl
+    name: International Brain Laboratory
+    kind: archive
+    url: https://www.internationalbrainlab.com/
+    access: Public behavior and electrophysiology through their ONE and docs.
+    summary: >
+      Brain-wide probes in a shared decision task, recorded the same way across
+      labs. Use it when the question is area-to-area, not one session.
+  - slug: nwb
+    name: Neurodata Without Borders
+    kind: format
+    url: https://www.nwb.org/
+    access: pynwb is a dependency. NWBReader returns volts and per-unit spike times.
+    summary: >
+      The HDF5 layout for raw ephys, sorted units, and trials. A reader that
+      invents a second layout will not open the dandisets above.
+  - slug: spikeinterface
+    name: SpikeInterface
+    kind: tool
+    url: https://spikeinterface.readthedocs.io/
+    access: Sort locally, then write NWB. This library starts at the sorted file.
+    summary: >
+      The sorting and curation layer under most new public spike datasets.
+      Compare sorters here before you trust a unit id.
+papers:
+  - title: Inferring single-trial neural population dynamics using sequential auto-encoders
+    year: 2018
+    authors: ["Chethan Pandarinath", "Daniel J. O'Shea", "Jasmine Collins"]
+    venue: Nature Methods
+    url: https://doi.org/10.1038/s41592-018-0109-9
+    doi: 10.1038/s41592-018-0109-9
+    cited_by_count: 746
+    why: >
+      The journal LFADS paper. The 2016 preprint is https://arxiv.org/abs/1608.06315
+      and the loss in this repository follows that model.
+  - title: "Neural Latents Benchmark '21: Evaluating latent variable models of neural population activity"
+    year: 2021
+    authors: [Felix Pei, Joel Ye, David Zoltowski, Anqi Wu]
+    venue: arXiv
+    url: https://arxiv.org/abs/2109.04463
+    cited_by_count: 44
+    why: >
+      Defines the held-out bits-per-spike evaluation. A co-bps number only
+      means something on one of these splits.
+  - title: "Neurodata Without Borders: Creating a Common Data Format for Neurophysiology"
+    year: 2015
+    authors: [Jeffery L. Teeters, Keith B. Godfrey, Rob Young]
+    venue: Neuron
+    url: https://doi.org/10.1016/j.neuron.2015.10.025
+    doi: 10.1016/j.neuron.2015.10.025
+    cited_by_count: 218
+    why: >
+      The format paper. Cite the later eLife ecosystem paper if you depend on
+      the modern NWB software stack rather than the original idea.

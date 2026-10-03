@@ -11,6 +11,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from neuroforge.models import LFADS, TCN, BrainGNN, EEGConformer
+from neuroforge.resources.fetch import literature_search
 from neuroforge.training.export import export_onnx, parity_error
 from neuroforge.training.synthetic import classification_batch, connectome_batch, spike_batch
 
@@ -94,6 +95,14 @@ def main(argv: list[str] | None = None) -> None:
     export.add_argument("--model", default="eeg_conformer")
     export.add_argument("--out", type=Path, default=Path("model.onnx"))
 
+    literature = sub.add_parser(
+        "literature",
+        help="Query arXiv or OpenAlex for titles, authors, year, and a URL. No full text.",
+    )
+    literature.add_argument("--source", choices=("arxiv", "openalex"), default="openalex")
+    literature.add_argument("--query", required=True)
+    literature.add_argument("--limit", type=int, default=5)
+
     args, unknown = parser.parse_known_args(argv)
     for item in unknown:
         if item.startswith("model="):
@@ -107,6 +116,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.command == "train":
         result = train_smoke(args.model, args.steps, seed=args.seed)
         print(json.dumps(result))
+        return
+    if args.command == "literature":
+        print(json.dumps(literature_search(args.source, args.query, args.limit), indent=2))
         return
     result = export_smoke(args.model, args.out)
     print(json.dumps(result))

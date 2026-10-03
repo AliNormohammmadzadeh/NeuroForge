@@ -1,0 +1,107 @@
+slug: eeg-bci
+name: EEG and motor imagery
+kicker: Field 01
+hue: "#3ddc97"
+retrieved_on: "2026-10-03"
+snapshot_source: OpenAlex and arXiv
+summary: >
+  Scalp EEG is still the practical BCI signal: cheap, noninvasive, and easy to
+  leak. A window from a test subject in the training fold will flatter almost
+  any decoder. The archives below are the ones a motor-imagery recipe should
+  name, and the papers are the ones this repository's EEG-Conformer and the
+  MOABB splits actually follow.
+resources:
+  - slug: moabb
+    name: MOABB
+    kind: benchmark
+    url: https://moabb.neurotechx.com/docs/index.html
+    access: pip install moabb, then BNCI2014_001. Tests in this repo stay on synthetic data.
+    summary: >
+      Mother of All BCI Benchmarks. One harness, shared subject splits, and the
+      public EEG sets people mean when they quote a motor-imagery number.
+  - slug: bnci-horizon
+    name: BNCI Horizon 2020
+    kind: archive
+    url: https://bnci-horizon-2020.eu/database/data-sets
+    access: Download the dataset you need, then convert to BIDS before a split.
+    summary: >
+      The Graz motor-imagery collections, including BCI Competition IV 2a.
+      MOABB dataset BNCI2014_001 is this archive.
+  - slug: bci-competition-iv
+    name: BCI Competition IV
+    kind: archive
+    url: https://www.bbci.de/competition/iv/
+    access: Dataset 2a is the four-class cueing set. Subject is the split key.
+    summary: >
+      The competition that fixed the 2a/2b protocol. Use it as a dataset, not
+      as a leaderboard to copy into a model card.
+  - slug: eegmmidb
+    name: PhysioNet EEGMMIDB
+    kind: archive
+    url: https://physionet.org/content/eegmmidb/1.0.0/
+    access: PhysioNet credentialed download. 109 subjects, real and imagined movement.
+    summary: >
+      The largest freely described motor-imagery EEG set. Hands and feet,
+      64 channels, useful when 2a is too small to trust a deep model.
+  - slug: openneuro
+    name: OpenNeuro
+    kind: archive
+    url: https://openneuro.org
+    access: Anonymous S3 via neuroforge.data.remote.openneuro_fs. Needs the remote extra.
+    summary: >
+      BIDS datasets, including EEG. Prefer a dataset that already validates as
+      BIDS over a custom folder layout.
+  - slug: tuh-eeg
+    name: TUH EEG Corpus
+    kind: archive
+    url: https://isip.piconepress.com/projects/tuh_eeg/
+    access: Request access from the Institute for Signal and Information Processing.
+    summary: >
+      Clinical EEG at a scale the competition sets do not have. The right
+      corpus for pathology and normal-vs-abnormal decoding, not for cue-based
+      motor imagery.
+  - slug: bids-eeg
+    name: BIDS-EEG
+    kind: format
+    url: https://bids-specification.readthedocs.io/en/stable/modality-specific-files/electroencephalography.html
+    access: Read with mne_bids. This library's BIDSReader follows that layout.
+    summary: >
+      The filename and sidecar rules for EEG. Channels, electrodes, and events
+      stay next to the recording so a split can see the subject id.
+  - slug: mne
+    name: MNE-Python
+    kind: tool
+    url: https://mne.tools/stable/index.html
+    access: Already a dependency. recording_from_mne converts a Raw into volts.
+    summary: >
+      The reader for almost every EEG vendor format. Filtering and epoching
+      belong here; the leakage check belongs in the split, after.
+papers:
+  - title: "EEG Conformer: Convolutional Transformer for EEG Decoding and Visualization"
+    year: 2022
+    authors: [Yonghao Song, Qingqing Zheng, Bingchuan Liu, Xiaorong Gao]
+    venue: IEEE Transactions on Neural Systems and Rehabilitation Engineering
+    url: https://doi.org/10.1109/tnsre.2022.3230250
+    doi: 10.1109/tnsre.2022.3230250
+    cited_by_count: 1081
+    why: >
+      Temporal convolution, spatial convolution, then a transformer. The
+      EEG-Conformer in this repository follows that stack.
+  - title: "The largest EEG-based BCI reproducibility study for open science: the MOABB benchmark"
+    year: 2024
+    authors: [Sylvain Chevallier, Igor Carrara, Bruno Aristimunha, Pierre Guetschel]
+    venue: arXiv
+    url: https://arxiv.org/abs/2404.15319
+    why: >
+      The current public benchmark of motor-imagery pipelines. Read it before
+      quoting a single accuracy on dataset 2a.
+  - title: MEG and EEG data analysis with MNE-Python
+    year: 2013
+    authors: [Alexandre Gramfort]
+    venue: Frontiers in Neuroscience
+    url: https://doi.org/10.3389/fnins.2013.00267
+    doi: 10.3389/fnins.2013.00267
+    cited_by_count: 4219
+    why: >
+      The paper for the toolbox that reads the files. Cite the toolbox when
+      the contribution is the loader, not a new decoder.
