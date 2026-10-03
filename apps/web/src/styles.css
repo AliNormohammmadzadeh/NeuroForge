@@ -373,14 +373,63 @@ footer { padding: 1.4rem 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
   color: var(--muted);
 }
 
-.chain li::before {
-  content: counter(step);
+.chain li::before { content: none; }
+
+.chain li span {
   display: block;
   color: #e6a15c;
   font-size: 0.68rem;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
   margin-bottom: 0.15rem;
 }
+
+.facts { margin: 0.7rem 0; display: grid; gap: 0.65rem; }
+
+.facts dt {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--eeg);
+}
+
+.facts dd { margin: 0.15rem 0 0; }
+
+.group-label {
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.guide, .part-notes {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+  color: var(--muted);
+}
+
+.guide strong, .part-notes strong { color: var(--ink); }
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0.85rem;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: 28rem;
+  text-align: center;
+  pointer-events: none;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: rgba(12, 15, 20, 0.82);
+  border-radius: 999px;
+  padding: 0.32rem 0.75rem;
+}
+
+.library-open .hint { display: none; }
 
 .algo { cursor: pointer; }
 

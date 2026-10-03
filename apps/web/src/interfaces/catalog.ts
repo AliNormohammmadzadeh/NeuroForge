@@ -1,3 +1,43 @@
+export interface HeadPart {
+  slug: "scalp" | "skull" | "cortex";
+  name: string;
+  role: string;
+  color: string;
+  what: string;
+  signal: string;
+}
+
+export const HEAD_PARTS: readonly HeadPart[] = [
+  {
+    slug: "scalp",
+    name: "Scalp",
+    role: "The outside",
+    color: "#e7c2b4",
+    what: "Skin over the skull. A scalp electrode stops on this surface.",
+    signal: "The voltage here is a blurred sum. A single spike has already been smoothed away.",
+  },
+  {
+    slug: "skull",
+    name: "Skull",
+    role: "The barrier",
+    color: "#f4efe4",
+    what: "Bone between the scalp and the brain. This shell is a drawing, not a measured skull.",
+    signal: "Bone spreads the electrical field, so a spike becomes a slow rhythm by the time it reaches the scalp.",
+  },
+  {
+    slug: "cortex",
+    name: "Cortex",
+    role: "The source",
+    color: "#d7b2a6",
+    what: "The wrinkled surface where the neurons in these models live.",
+    signal: "A surface film sits on it. Needles and threads end a short distance inside it. A stent listens from a vein beside it.",
+  },
+];
+
+export function headPartBySlug(slug: string): HeadPart | undefined {
+  return HEAD_PARTS.find((item) => item.slug === slug);
+}
+
 export interface InterfaceModel {
   slug: string;
   name: string;

@@ -241,8 +241,24 @@ export function AlgorithmCard({ algorithm }: { algorithm: Algorithm }) {
     <article className="algo-card">
       <p className="kicker">{algorithm.implemented ? "In this repository" : "Reference algorithm"}</p>
       <h2>{algorithm.name}</h2>
-      <p>{algorithm.summary}</p>
-      <p>{algorithm.use_when}</p>
+      <dl className="facts">
+        <div>
+          <dt>What it is</dt>
+          <dd>{algorithm.summary}</dd>
+        </div>
+        <div>
+          <dt>Use it when</dt>
+          <dd>{algorithm.use_when}</dd>
+        </div>
+        <div>
+          <dt>Trained here</dt>
+          <dd>
+            {algorithm.implemented
+              ? "Yes. The command below is the one in this repository."
+              : "No. The card explains it. The smoke trainer does not run it."}
+          </dd>
+        </div>
+      </dl>
       {algorithm.command ? <code>{algorithm.command}</code> : null}
     </article>
   );
