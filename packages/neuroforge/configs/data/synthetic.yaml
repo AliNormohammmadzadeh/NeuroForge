@@ -1,0 +1,9 @@
+name: synthetic
+source: local
+preprocessing:
+  bandpass: {l_freq: 4.0, h_freq: 40.0, order: 4}
+  notch: {freq: 50.0, harmonics: 1}
+  car: true
+window: {mode: sliding, window_s: 0.25, stride_s: 0.125}
+normalize: zscore_per_channel
+batch_size: 16

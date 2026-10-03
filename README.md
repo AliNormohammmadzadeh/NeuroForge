@@ -2,7 +2,27 @@
 
 > **An open-source hub where computational neuroscientists, BCI engineers, and neuro-AI researchers find, build, and benchmark everything in one place: datasets, data loaders, model recipes, training pipelines, papers, and patents.**
 
-NeuroForge answers four questions for a neuroscience researcher:
+**Status:** v0.1 is a library you can clone and run. Training stays on synthetic data, so the quickstart does not download BCI Competition IV 2a, DANDI, or ABIDE. Benchmark cards ship with empty result lists. Published numbers are attached only after a reproduced run.
+
+What runs today:
+
+- Group splits that refuse a subject, session, or run shared by train and test
+- Causal filters, a normalizer fit on the training fold only, and a content-hashed Zarr or HDF5 cache
+- BIDS and local NWB readers that return volts
+- EEG-Conformer, a causal TCN, LFADS, and BrainGNN
+- ONNX export of the EEG decoders with a numeric parity check
+- A registry API and homepage over the model and dataset cards
+
+Paper and patent ingestion, embedding search, and the Next.js explorer are still design notes in the sections below.
+
+```bash
+uv sync --all-packages --group dev
+uv run pytest
+uv run neuroforge train --model eeg_conformer --steps 2
+uv run uvicorn api.main:app --port 8000
+```
+
+The finished hub is meant to answer four questions for a neuroscience researcher:
 
 1. **"What data can I train on, and how do I load it without fighting formats?"** → Unified BIDS / NWB loaders with streaming from DANDI and OpenNeuro.
 2. **"What model should I use, and how do I train it correctly?"** → A typed model zoo (EEG-Conformer, LFADS, BrainGNN) with reproducible, leakage-safe training recipes.
@@ -249,49 +269,57 @@ import numpy.typing as npt
 
 CoordSpace = Literal["MNI152NLin2009cAsym", "fsaverage", "Talairach", "native", "unknown"]
 
+
 @dataclass(frozen=True, slots=True)
 class RecordingKey:
     """Identity used for leakage-safe splitting. Never split below this level."""
+
     dataset_id: str
     subject_id: str
     session_id: str | None = None
     run_id: str | None = None
 
+
 @dataclass(slots=True)
 class ContinuousRecording:
     """EEG / MEG / iEEG / LFP. data is (n_channels, n_samples), lazily backed."""
+
     key: RecordingKey
-    data: npt.ArrayLike                      # np.ndarray | zarr.Array | h5py.Dataset
+    data: npt.ArrayLike  # np.ndarray | zarr.Array | h5py.Dataset
     sfreq: float
     ch_names: list[str]
-    ch_types: list[str]                      # "eeg", "meg", "seeg", "ecog", "lfp", ...
+    ch_types: list[str]  # "eeg", "meg", "seeg", "ecog", "lfp", ...
     montage: dict[str, tuple[float, float, float]] | None = None
     coord_space: CoordSpace = "unknown"
     units: str = "V"
-    events: npt.NDArray[np.float64] | None = None   # (n_events, 3): onset_s, duration_s, code
+    events: npt.NDArray[np.float64] | None = None  # (n_events, 3): onset_s, duration_s, code
     event_labels: dict[int, str] = field(default_factory=dict)
     bad_channels: list[str] = field(default_factory=list)
+
 
 @dataclass(slots=True)
 class SpikeRecording:
     """Neuropixels / Utah array sorted units."""
+
     key: RecordingKey
-    spike_times: list[npt.NDArray[np.float64]]       # per-unit, seconds
+    spike_times: list[npt.NDArray[np.float64]]  # per-unit, seconds
     unit_ids: npt.NDArray[np.int64]
-    cluster_quality: list[str] | None = None         # "good", "mua", "noise"
-    waveforms: npt.NDArray[np.float32] | None = None # (n_units, n_samples, n_channels)
+    cluster_quality: list[str] | None = None  # "good", "mua", "noise"
+    waveforms: npt.NDArray[np.float32] | None = None  # (n_units, n_samples, n_channels)
     brain_area: list[str] | None = None
-    trials: npt.NDArray[np.float64] | None = None    # (n_trials, 2): start_s, stop_s
+    trials: npt.NDArray[np.float64] | None = None  # (n_trials, 2): start_s, stop_s
     behavior: dict[str, npt.NDArray[np.float64]] = field(default_factory=dict)
+
 
 @dataclass(slots=True)
 class Connectome:
     """Structural / functional connectivity on a parcellation."""
+
     key: RecordingKey
-    adjacency: npt.NDArray[np.float32]               # (n_regions, n_regions)
+    adjacency: npt.NDArray[np.float32]  # (n_regions, n_regions)
     region_labels: list[str]
-    parcellation: str                                # "Schaefer400", "AAL3", "HCP-MMP1", ...
-    coords: npt.NDArray[np.float32] | None = None    # (n_regions, 3)
+    parcellation: str  # "Schaefer400", "AAL3", "HCP-MMP1", ...
+    coords: npt.NDArray[np.float32] | None = None  # (n_regions, 3)
     coord_space: CoordSpace = "unknown"
     kind: Literal["structural", "functional", "effective"] = "functional"
     node_features: npt.NDArray[np.float32] | None = None
@@ -325,11 +353,12 @@ import h5py, remfile
 from dandi.dandiapi import DandiAPIClient
 from pynwb import NWBHDF5IO
 
+
 def open_dandi_nwb(dandiset_id: str, asset_path: str, version: str = "draft") -> NWBHDF5IO:
     with DandiAPIClient() as client:
         asset = client.get_dandiset(dandiset_id, version).get_asset_by_path(asset_path)
         url = asset.get_content_url(follow_redirects=1, strip_query=True)
-    rfile = remfile.File(url)                       # HTTP range requests, no full download
+    rfile = remfile.File(url)  # HTTP range requests, no full download
     h5 = h5py.File(rfile, "r")
     return NWBHDF5IO(file=h5, mode="r", load_namespaces=True)
 ```
@@ -351,16 +380,20 @@ Use second-order sections (SOS) for numerical stability. Offline training uses z
 import numpy as np
 from scipy import signal
 
-def bandpass(x: np.ndarray, sfreq: float, l_freq: float, h_freq: float,
-             order: int = 4, causal: bool = False) -> np.ndarray:
+
+def bandpass(
+    x: np.ndarray, sfreq: float, l_freq: float, h_freq: float, order: int = 4, causal: bool = False
+) -> np.ndarray:
     nyq = sfreq / 2.0
     if not 0 < l_freq < h_freq < nyq:
         raise ValueError(f"Invalid band {l_freq}-{h_freq} Hz for sfreq={sfreq}")
     sos = signal.butter(order, [l_freq, h_freq], btype="bandpass", fs=sfreq, output="sos")
     return signal.sosfilt(sos, x, axis=-1) if causal else signal.sosfiltfilt(sos, x, axis=-1)
 
-def notch(x: np.ndarray, sfreq: float, freq: float = 50.0, q: float = 30.0,
-          harmonics: int = 2) -> np.ndarray:
+
+def notch(
+    x: np.ndarray, sfreq: float, freq: float = 50.0, q: float = 30.0, harmonics: int = 2
+) -> np.ndarray:
     out = x
     for k in range(1, harmonics + 1):
         f0 = freq * k
@@ -370,13 +403,16 @@ def notch(x: np.ndarray, sfreq: float, freq: float = 50.0, q: float = 30.0,
         out = signal.filtfilt(b, a, out, axis=-1)
     return out
 
+
 def common_average_reference(x: np.ndarray, bad_mask: np.ndarray | None = None) -> np.ndarray:
     """x: (n_channels, n_samples). Bad channels are excluded from the reference."""
     good = ~bad_mask if bad_mask is not None else np.ones(x.shape[0], dtype=bool)
     return x - x[good].mean(axis=0, keepdims=True)
 
-def bin_spikes(spike_times: list[np.ndarray], t_start: float, t_stop: float,
-               bin_size: float) -> np.ndarray:
+
+def bin_spikes(
+    spike_times: list[np.ndarray], t_start: float, t_stop: float, bin_size: float
+) -> np.ndarray:
     """Returns (n_units, n_bins) int32 spike counts."""
     edges = np.arange(t_start, t_stop + bin_size / 2, bin_size)
     return np.stack([np.histogram(st, bins=edges)[0] for st in spike_times]).astype(np.int32)
@@ -411,6 +447,7 @@ The most common bug in published BCI results is windows from the same subject ap
 ```python
 from sklearn.model_selection import GroupKFold
 
+
 def group_kfold(keys: list[RecordingKey], n_splits: int, level: str = "subject"):
     groups = [_group_of(k, level) for k in keys]
     for train_idx, test_idx in GroupKFold(n_splits=n_splits).split(keys, groups=groups):
@@ -418,6 +455,7 @@ def group_kfold(keys: list[RecordingKey], n_splits: int, level: str = "subject")
         test_g = {groups[i] for i in test_idx}
         assert train_g.isdisjoint(test_g), f"Leakage: {train_g & test_g}"
         yield train_idx, test_idx
+
 
 def _group_of(k: RecordingKey, level: str) -> str:
     if level == "subject":
@@ -484,6 +522,7 @@ Reconstructs latent firing dynamics from binned spike counts.
 import torch
 import torch.nn.functional as F
 
+
 def lfads_loss(log_rates, counts, q_mu, q_logvar, kl_weight: float):
     recon = F.poisson_nll_loss(log_rates, counts, log_input=True, full=False, reduction="sum")
     kl = -0.5 * torch.sum(1 + q_logvar - q_mu.pow(2) - q_logvar.exp())
@@ -513,9 +552,11 @@ Operates on connectivity matrices.
 import math
 import torch
 
+
 def poisson_ll(rates: torch.Tensor, counts: torch.Tensor) -> torch.Tensor:
     rates = rates.clamp_min(1e-9)
     return (counts * torch.log(rates) - rates - torch.lgamma(counts + 1)).sum()
+
 
 def co_bps(pred_rates: torch.Tensor, heldout_counts: torch.Tensor) -> float:
     """pred_rates, heldout_counts: (trials, time, neurons), rates in counts/bin."""
@@ -524,6 +565,7 @@ def co_bps(pred_rates: torch.Tensor, heldout_counts: torch.Tensor) -> float:
     ll_null = poisson_ll(null_rates, heldout_counts)
     n_spikes = heldout_counts.sum().clamp_min(1)
     return float((ll_model - ll_null) / (n_spikes * math.log(2)))
+
 
 def pearson_r(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     """(n, d) → mean r over d."""
@@ -645,6 +687,7 @@ import asyncio
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter, retry_if_exception_type
 
+
 class RateLimiter:
     def __init__(self, rate_per_s: float) -> None:
         self._interval = 1.0 / rate_per_s
@@ -659,14 +702,19 @@ class RateLimiter:
                 await asyncio.sleep(delay)
             self._last = loop.time()
 
+
 class BaseClient:
     source: str
+
     def __init__(self, client: httpx.AsyncClient, rate_per_s: float) -> None:
         self.http = client
         self.limiter = RateLimiter(rate_per_s)
 
-    @retry(stop=stop_after_attempt(5), wait=wait_exponential_jitter(initial=1, max=60),
-           retry=retry_if_exception_type((httpx.TransportError, httpx.HTTPStatusError)))
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential_jitter(initial=1, max=60),
+        retry=retry_if_exception_type((httpx.TransportError, httpx.HTTPStatusError)),
+    )
     async def get(self, url: str, **kwargs) -> httpx.Response:
         await self.limiter.wait()
         r = await self.http.get(url, **kwargs)
@@ -807,11 +855,13 @@ The `/discover` response includes facet counts so the UI sidebar updates in one 
 ```python
 from pydantic import BaseModel, HttpUrl, Field
 
+
 class HardwareReq(BaseModel):
     min_vram_gb: float
     train_gpu: str
     train_hours: float
     inference_cpu_p99_ms: float | None = None
+
 
 class BenchmarkOut(BaseModel):
     dataset: str
@@ -820,6 +870,7 @@ class BenchmarkOut(BaseModel):
     std: float | None = None
     n_folds: int
     split_level: str
+
 
 class ModelSpec(BaseModel):
     id: str

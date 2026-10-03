@@ -1,0 +1,55 @@
+[project]
+name = "neuroforge"
+version = "0.1.0"
+description = "Leakage-safe neural data tools and reproducible model recipes for BCI and neuro-AI."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "NeuroForge Contributors" }]
+keywords = ["neuroscience", "bci", "eeg", "nwb", "pytorch"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "h5py>=3.11",
+    "hydra-core>=1.3",
+    "lightning>=2.4",
+    "mne>=1.8",
+    "mne-bids>=0.16",
+    "numpy>=2.0",
+    "omegaconf>=2.3",
+    "onnx>=1.17",
+    "onnxruntime>=1.19",
+    "pydantic>=2.9",
+    "pynwb>=2.8",
+    "pyyaml>=6.0",
+    "scikit-learn>=1.5",
+    "scipy>=1.14",
+    "torch>=2.4",
+    "zarr>=2.18,<3",
+]
+
+[project.optional-dependencies]
+remote = ["dandi>=0.61", "fsspec>=2024.6", "remfile>=0.1.12", "s3fs>=2024.6"]
+
+[project.scripts]
+neuroforge = "neuroforge.training.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/AliNormohammmadzadeh/NeuroForge"
+Repository = "https://github.com/AliNormohammmadzadeh/NeuroForge"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/neuroforge"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/neuroforge/py.typed" = "neuroforge/py.typed"

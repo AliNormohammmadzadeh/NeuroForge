@@ -1,0 +1,13 @@
+slug: lfads
+name: LFADS
+architecture: sequential variational autoencoder
+task: latent_dynamics
+modalities: [Spikes]
+param_count: 0
+summary: >
+  Bidirectional encoder, initial-condition posterior, and a Poisson generator.
+  Coordinated dropout is applied to the encoder input. Train the smoke recipe
+  before pointing it at a DANDI NWB file.
+train_command: uv run neuroforge train --model lfads --steps 2
+license: Apache-2.0
+benchmarks: []

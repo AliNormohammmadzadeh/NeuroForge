@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+title: NeuroForge
+message: If you use this software, please cite it.
+type: software
+authors:
+  - name: NeuroForge Contributors
+repository-code: https://github.com/AliNormohammmadzadeh/NeuroForge
+license: Apache-2.0
+version: 0.1.0
+date-released: "2026-10-03"
+abstract: >-
+  Leakage-safe neural data tools and reproducible model recipes for BCI and
+  neuro-AI. Version 0.1 trains offline on synthetic data and does not claim
+  published benchmark numbers.
