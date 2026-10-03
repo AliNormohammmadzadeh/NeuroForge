@@ -10,6 +10,24 @@ function viewNote(focus: string): string {
   return "The electrode is the only object added to the surface. Choose Scalp or Skull when you want those shells.";
 }
 
+function PartSteps({ steps }: { steps: ReadonlyArray<{ title: string; body: string }> }) {
+  return (
+    <>
+      <p className="kicker">Smaller steps</p>
+      <ol className="substeps">
+        {steps.map((step) => (
+          <li key={step.title}>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
+
 export function DeviceRail({
   focus,
   query,
@@ -26,7 +44,7 @@ export function DeviceRail({
       <p className="group-label">The head</p>
       <ul className="approaches">
         {HEAD_PARTS.map((item) => {
-          const text = `${item.name} ${item.role} ${item.what} ${item.signal}`;
+          const text = `${item.name} ${item.role} ${item.what} ${item.signal} ${item.steps.map((step) => `${step.title} ${step.body}`).join(" ")}`;
           return (
             <li key={item.slug} className={matchesQuery(text, query) ? "" : "is-hidden"}>
               <button type="button" aria-pressed={item.slug === focus} onClick={() => onSelect(item.slug)}>
@@ -43,7 +61,7 @@ export function DeviceRail({
       <p className="group-label">The electrode</p>
       <ul className="approaches">
         {INTERFACES.map((item) => {
-          const text = `${item.name} ${item.example} ${item.sits} ${item.hears}`;
+          const text = `${item.name} ${item.example} ${item.sits} ${item.hears} ${item.steps.map((step) => `${step.title} ${step.body}`).join(" ")}`;
           return (
             <li key={item.slug} className={matchesQuery(text, query) ? "" : "is-hidden"}>
               <button type="button" aria-pressed={item.slug === focus} onClick={() => onSelect(item.slug)}>
@@ -81,6 +99,7 @@ export function DeviceDetail({ focus }: { focus: string }) {
               <dd>{layer.signal}</dd>
             </div>
           </dl>
+          <PartSteps steps={layer.steps} />
         </article>
       </aside>
     );
@@ -114,6 +133,7 @@ export function DeviceDetail({ focus }: { focus: string }) {
             </li>
           ))}
         </ol>
+        <PartSteps steps={current.steps} />
         <p>{current.note}</p>
         <p className="access">
           <a href={current.url} rel="noopener noreferrer">

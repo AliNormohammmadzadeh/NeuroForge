@@ -29,16 +29,33 @@ export function LibraryPanel({
         <p className="kicker">Roadmap</p>
         <h2>Start here.</h2>
         <p className="lede">
-          Eight steps from a newcomer to a first decoder. Synthetic training comes before any
-          download.
+          Five parts. Each part has smaller steps. Synthetic training comes before any download.
         </p>
         <ol className="steps">
-          {ROADMAP.map((step) => (
-            <li key={step.title} className={hidden(`${step.title} ${step.body}`, query)}>
-              <h3>{step.title}</h3>
-              <p>{step.body}</p>
-            </li>
-          ))}
+          {ROADMAP.map((part) => {
+            const blob = [part.title, part.aim, ...part.steps.flatMap((step) => [step.title, step.body])].join(" ");
+            return (
+              <li key={part.title} className={hidden(blob, query)}>
+                <div>
+                  <h3>{part.title}</h3>
+                  <p>{part.aim}</p>
+                  <ol className="substeps">
+                    {part.steps.map((step) => (
+                      <li
+                        key={step.title}
+                        className={hidden(`${part.title} ${part.aim} ${step.title} ${step.body}`, query)}
+                      >
+                        <div>
+                          <h4>{step.title}</h4>
+                          <p>{step.body}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </li>
+            );
+          })}
         </ol>
       </section>
       <section id="later" className="band">

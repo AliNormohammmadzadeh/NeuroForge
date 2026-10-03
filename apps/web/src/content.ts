@@ -1,35 +1,97 @@
-export const ROADMAP: ReadonlyArray<{ title: string; body: string }> = [
+export const ROADMAP: ReadonlyArray<{
+  title: string;
+  aim: string;
+  steps: ReadonlyArray<{ title: string; body: string }>;
+}> = [
   {
-    title: "Pick one signal",
-    body: "EEG motor imagery, sorted spikes, or a connectivity matrix. Do not mix them in a first model.",
+    title: "The head",
+    aim: "Select Cortex, Skull, then Scalp. Each card says where you are and what the voltage does there.",
+    steps: [
+      {
+        title: "Start on the cortex",
+        body: "The folds are the pial surface of OpenNeuro ds006128, subject 01. Ridges are gyri. Creases are sulci. The darker paint marks the creases.",
+      },
+      {
+        title: "Then the skull",
+        body: "Bone spreads a spike into a slow rhythm. The shell in the scene is a drawing, not bone from that MRI.",
+      },
+      {
+        title: "Then the scalp",
+        body: "A scalp electrode stops on the skin. It hears the sum that survived the bone, not a single neuron.",
+      },
+    ],
   },
   {
-    title: "Open one dataset and one paper",
-    body: "The dataset links and the paper that named the recipe are below. Read those before a leaderboard.",
+    title: "The electrode",
+    aim: "Closer to the neuron, the picture is sharper and harder to place. Read one device at a time.",
+    steps: [
+      {
+        title: "Outside the head",
+        body: "Scalp EEG hears a rhythm. Nothing is implanted. MOABB is the benchmark library, and this site does not download it.",
+      },
+      {
+        title: "On the surface, or in a vein",
+        body: "A film on the cortex and a stent in the superior sagittal sinus both hear a field potential. The first published Stentrode used 16 electrodes. Neither card is a procedure.",
+      },
+      {
+        title: "Inside the cortex",
+        body: "Utah needles, Neuralink threads, and the Connexus array end about a millimeter and a half in and can hear spikes. The N1 brochure counts 1,024 electrodes on 64 threads. Those devices are investigational. The threads picture is not a robot and not a procedure.",
+      },
+    ],
   },
   {
-    title: "Run the loop with no download",
-    body: "uv run neuroforge train --model eeg_conformer --steps 2",
+    title: "One signal",
+    aim: "Pick EEG, spikes, or a connectome. A first model uses one of them.",
+    steps: [
+      {
+        title: "EEG",
+        body: "The tensor is trials, channels, samples. EEG-Conformer or the causal TCN. Use the TCN when latency matters.",
+      },
+      {
+        title: "Spikes",
+        body: "The tensor is trials, time, neurons. LFADS reads that. Do not feed it a scalp rhythm.",
+      },
+      {
+        title: "A connectome",
+        body: "The tensor is subjects, regions, regions. BrainGNN reads that matrix. Mixing it with EEG in one first model teaches you neither.",
+      },
+    ],
   },
   {
-    title: "Learn the split",
-    body: "uv run neuroforge demo. A window split memorizes the person and scores higher. A subject split shares nobody and the score falls.",
+    title: "A split you can publish",
+    aim: "A window split can memorize the person. The cut has to refuse a shared subject, session, or run.",
+    steps: [
+      {
+        title: "Name the recording",
+        body: "Every recording needs a dataset id and a subject id, plus session and run when those exist. That is the RecordingKey.",
+      },
+      {
+        title: "Run neuroforge demo",
+        body: "Eight synthetic people, one class each. A window split shares all 8 and scores 1.00. Holding out two people shares nobody and scores 0.50. The 1.00 is the bug. Seed 0 prints both.",
+      },
+      {
+        title: "Fit only on the training fold",
+        body: "Filter, rereference, and fit the z-score after the split, on training data only. Cut windows after the groups are assigned. The config hash is the cache key.",
+      },
+    ],
   },
   {
-    title: "Freeze the preprocessing",
-    body: "Filter, rereference, and fit the z-score on training data only. The config hash is the cache key.",
-  },
-  {
-    title: "Train the model for that field",
-    body: "EEG-Conformer or the causal TCN, LFADS for spikes, BrainGNN for a connectome.",
-  },
-  {
-    title: "Score the right metric",
-    body: "Kappa for EEG. Bits per spike for held-out spike bins. Leave benchmark cards empty until a run here reproduces the number.",
-  },
-  {
-    title: "Export only the EEG decoders",
-    body: "uv run neuroforge export --model eeg_conformer --out model.onnx",
+    title: "Train, score, stop",
+    aim: "A short synthetic run, the metric that matches the signal, then an export only for the EEG decoders.",
+    steps: [
+      {
+        title: "Two steps, no download",
+        body: "uv run neuroforge train --model eeg_conformer --steps 2. The command does not download BCI Competition IV 2a, DANDI, or ABIDE.",
+      },
+      {
+        title: "The metric for that signal",
+        body: "Kappa for EEG. Bits per spike for held-out spike bins. Leave the benchmark card empty until a run in this repository reproduces the number.",
+      },
+      {
+        title: "Export the EEG decoder",
+        body: "uv run neuroforge export --model eeg_conformer --out model.onnx. The CLI prints a numeric parity check. Spike and connectome models are not on that export path.",
+      },
+    ],
   },
 ];
 
