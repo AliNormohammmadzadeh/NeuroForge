@@ -13,6 +13,7 @@ from torch.nn import functional as F
 from neuroforge.models import LFADS, TCN, BrainGNN, EEGConformer
 from neuroforge.resources.fetch import literature_search
 from neuroforge.training.export import export_onnx, parity_error
+from neuroforge.training.leakage_demo import run_leakage_demo
 from neuroforge.training.synthetic import classification_batch, connectome_batch, spike_batch
 
 
@@ -95,6 +96,13 @@ def main(argv: list[str] | None = None) -> None:
     export.add_argument("--model", default="eeg_conformer")
     export.add_argument("--out", type=Path, default=Path("model.onnx"))
 
+    demo = sub.add_parser(
+        "demo",
+        help="Compare a leaky window split with a subject split on a subject shortcut.",
+    )
+    demo.add_argument("--seed", type=int, default=0)
+    demo.add_argument("--steps", type=int, default=80)
+
     literature = sub.add_parser(
         "literature",
         help="Query arXiv or OpenAlex for titles, authors, year, and a URL. No full text.",
@@ -116,6 +124,19 @@ def main(argv: list[str] | None = None) -> None:
     if args.command == "train":
         result = train_smoke(args.model, args.steps, seed=args.seed)
         print(json.dumps(result))
+        return
+    if args.command == "demo":
+        report = run_leakage_demo(seed=args.seed, steps=args.steps)
+        print(
+            "A window split shares "
+            f"{int(report['leaky_shared_subjects'])} subjects and scores "
+            f"{report['leaky_accuracy']:.2f}. "
+            "A subject split shares "
+            f"{int(report['safe_shared_subjects'])} and scores "
+            f"{report['safe_accuracy']:.2f}. "
+            "The higher score is the one that memorized the person."
+        )
+        print(json.dumps(report))
         return
     if args.command == "literature":
         print(json.dumps(literature_search(args.source, args.query, args.limit), indent=2))

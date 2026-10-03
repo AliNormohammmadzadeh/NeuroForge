@@ -1,10 +1,24 @@
 # NeuroForge
 
-> **An open-source hub where computational neuroscientists, BCI engineers, and neuro-AI researchers find, build, and benchmark everything in one place: datasets, data loaders, model recipes, training pipelines, papers, and patents.**
+A window split can memorize the person. NeuroForge cuts recordings by subject, session, or run, and the cut refuses to share that group.
 
-**Status:** v0.1 is a library you can clone and run. Training stays on synthetic data, so the quickstart does not download BCI Competition IV 2a, DANDI, or ABIDE. Benchmark cards ship with empty result lists. Published numbers are attached only after a reproduced run.
+```bash
+uv sync --all-packages --group dev
+uv run neuroforge demo
+```
 
-What runs today:
+The demo builds eight synthetic people. Each person has one class, and every window carries that person's signature. The same linear decoder is trained twice:
+
+| Split | Subjects shared by train and test | Accuracy |
+| --- | ---: | ---: |
+| Half the windows of every person | 8 | 1.00 |
+| Two people held out | 0 | 0.50 |
+
+The 1.00 is the bug. The 0.50 is the number you can publish. Seed 0 of `neuroforge demo` prints both.
+
+**Status:** v0.1 trains on synthetic data, so this command does not download BCI Competition IV 2a, DANDI, or ABIDE. Benchmark cards ship with empty result lists. A published number is attached only after a run here reproduces it.
+
+What else runs today:
 
 - Group splits that refuse a subject, session, or run shared by train and test
 - Causal filters, a normalizer fit on the training fold only, and a content-hashed Zarr or HDF5 cache
@@ -14,14 +28,13 @@ What runs today:
 - A registry API and a field atlas: MOABB, OpenNeuro, DANDI, ABIDE, the Human Connectome Project, the papers those recipes follow, and a cortex view of the algorithms
 - `neuroforge literature` queries the arXiv and OpenAlex APIs for title, authors, year, and a URL
 
-Embedding search and the Next.js explorer are still design notes in the sections below. The atlas stores a dated metadata snapshot and does not keep full text.
-
 ```bash
-uv sync --all-packages --group dev
 uv run pytest
 uv run neuroforge train --model eeg_conformer --steps 2
 uv run uvicorn api.main:app --port 8000
 ```
+
+Open `http://127.0.0.1:8000`. The atlas is the map of algorithms, dataset links, and the eight-step start. Embedding search and the Next.js explorer are still design notes in the sections below.
 
 The finished hub is meant to answer four questions for a neuroscience researcher:
 
@@ -31,6 +44,8 @@ The finished hub is meant to answer four questions for a neuroscience researcher
 4. **"What's state of the art right now?"** → A searchable benchmark and model registry with hybrid (keyword + semantic) search.
 
 ---
+
+Sections 1–16 are the design for the rest of the hub. They describe pieces that are not all running yet.
 
 ## Table of Contents
 
