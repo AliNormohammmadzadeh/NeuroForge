@@ -1,6 +1,12 @@
 import json
 
-from neuroforge.resources import get_field, load_fields, parse_arxiv_atom, parse_openalex_works
+from neuroforge.resources import (
+    get_field,
+    load_algorithms,
+    load_fields,
+    parse_arxiv_atom,
+    parse_openalex_works,
+)
 from neuroforge.resources.fetch import search_openalex
 
 _ATOM = """<?xml version="1.0" encoding="UTF-8"?>
@@ -42,7 +48,7 @@ _OPENALEX = {
 
 def test_atlas_names_the_public_sources() -> None:
     fields = {field.slug: field for field in load_fields()}
-    assert set(fields) == {"connectomics", "eeg-bci", "literature", "spikes"}
+    assert {"connectomics", "eeg-bci", "literature", "spikes", "signal", "decoding"} <= set(fields)
     eeg = fields["eeg-bci"]
     assert {item.slug for item in eeg.resources} >= {"moabb", "openneuro", "eegmmidb"}
     assert any("Song" in author for paper in eeg.papers for author in paper.authors)
@@ -55,6 +61,15 @@ def test_atlas_names_the_public_sources() -> None:
         for resource in field.resources:
             assert resource.url.startswith("http")
             assert resource.summary.strip()
+
+
+def test_algorithms_cover_the_three_fields() -> None:
+    algorithms = load_algorithms()
+    fields = {item.field for item in algorithms}
+    assert fields == {"eeg-bci", "spikes", "connectomics"}
+    shipped = {item.slug for item in algorithms if item.implemented}
+    assert {"eeg-conformer", "tcn", "lfads", "brain-gnn", "csp"} - shipped == {"csp"}
+    assert all(len(item.anchor) == 3 for item in algorithms)
 
 
 def test_unknown_field_raises() -> None:

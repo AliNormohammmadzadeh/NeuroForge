@@ -9,5 +9,9 @@ summary: >
   The receptive field is exact and the network is exportable to ONNX for
   real-time decoding.
 train_command: uv run neuroforge train --model tcn --steps 2
+inputs: A batch of shape (trials, channels, samples). The decision is the last time step.
+usage: >
+  Use it when latency matters or when you will export ONNX. neuroforge export
+  checks that the exported decoder matches PyTorch.
 license: Apache-2.0
 benchmarks: []

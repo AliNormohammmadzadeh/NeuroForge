@@ -10,7 +10,16 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from api.pages import render_atlas, render_models, render_tabs
+from api.pages import (
+    render_algo_json,
+    render_algorithms,
+    render_atlas,
+    render_datasets,
+    render_models,
+    render_roadmap,
+    render_tabs,
+    render_train,
+)
 from api.search import reciprocal_rank_fusion
 from neuroforge.registry import (
     DatasetCard,
@@ -19,7 +28,7 @@ from neuroforge.registry import (
     load_dataset_cards,
     load_model_cards,
 )
-from neuroforge.resources import Field, Resource, get_field, load_fields
+from neuroforge.resources import Algorithm, Field, Resource, get_field, load_algorithms, load_fields
 from neuroforge.training.cli import _build
 
 
@@ -93,12 +102,16 @@ def create_app() -> FastAPI:
             found.extend(item.resources)
         return found
 
+    @app.get("/api/v1/algorithms", response_model=list[Algorithm])
+    def algorithms() -> list[Algorithm]:
+        return load_algorithms()
+
     @app.get("/api/v1/discover", response_model=list[DiscoverHit])
     def discover(
         q: str = "",
         kind: Annotated[list[str] | None, Query()] = None,
     ) -> list[DiscoverHit]:
-        wanted = set(kind or []) or {"model", "dataset", "resource"}
+        wanted = set(kind or []) or {"model", "dataset", "resource", "algorithm"}
         hits: list[DiscoverHit] = []
         needle = q.lower().strip()
         if "model" in wanted:
@@ -143,6 +156,19 @@ def create_app() -> FastAPI:
                             summary=resource.summary,
                         )
                     )
+        if "algorithm" in wanted:
+            for algorithm in load_algorithms():
+                text = f"{algorithm.name} {algorithm.summary} {algorithm.use_when}".lower()
+                if needle and needle not in text and needle not in algorithm.slug:
+                    continue
+                hits.append(
+                    DiscoverHit(
+                        type="algorithm",
+                        slug=algorithm.slug,
+                        name=algorithm.name,
+                        summary=algorithm.summary,
+                    )
+                )
         if needle:
             lexical = [hit.slug for hit in hits if needle in f"{hit.name} {hit.summary}".lower()]
             exact = [hit.slug for hit in hits if needle in hit.slug]
@@ -154,7 +180,13 @@ def create_app() -> FastAPI:
     @app.get("/", response_class=HTMLResponse)
     def home() -> str:
         atlas = load_fields()
+        algorithms = load_algorithms()
         page = template.replace("<!--TABS-->", render_tabs(atlas))
+        page = page.replace("<!--ALGO_JSON-->", render_algo_json(algorithms))
+        page = page.replace("<!--ROADMAP-->", render_roadmap())
+        page = page.replace("<!--ALGORITHMS-->", render_algorithms(algorithms))
+        page = page.replace("<!--DATASETS-->", render_datasets(atlas))
+        page = page.replace("<!--TRAIN-->", render_train())
         page = page.replace("<!--ATLAS-->", render_atlas(atlas))
         return page.replace("<!--CARDS-->", render_models(load_model_cards()))
 

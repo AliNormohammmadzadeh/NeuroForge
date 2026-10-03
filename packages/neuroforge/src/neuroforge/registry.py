@@ -26,6 +26,8 @@ class ModelCard(BaseModel):
     param_count: int = Field(ge=0)
     summary: str
     train_command: str
+    inputs: str = ""
+    usage: str = ""
     license: str = "Apache-2.0"
     benchmarks: list[Benchmark] = Field(default_factory=list)
 

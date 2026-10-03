@@ -9,5 +9,9 @@ summary: >
   readout of the top-k regions. Implemented in PyTorch so it does not require
   torch_geometric.
 train_command: uv run neuroforge train --model brain_gnn --steps 2
+inputs: A batch of connectivity matrices, shape (subjects, regions, regions).
+usage: >
+  Use it when each example is one subject and the label is a phenotype or a
+  task. Build the matrix with one atlas and one pipeline, then split on subject.
 license: Apache-2.0
 benchmarks: []

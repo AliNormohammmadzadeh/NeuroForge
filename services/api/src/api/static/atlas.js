@@ -120,6 +120,7 @@ function nearestEdges(geometry) {
   const lines = [];
   const lineColors = [];
   const lineFields = [];
+  const lineAlgos = [];
   const step = Math.max(1, Math.floor(count / 220));
   for (let i = 0; i < count; i += step) {
     let best = -1;
@@ -149,11 +150,14 @@ function nearestEdges(geometry) {
       colors[best * 3 + 2],
     );
     lineFields.push(fields[i], fields[best]);
+    const algos = geometry.algos || fields;
+    lineAlgos.push(algos[i], algos[best]);
   }
   return {
     positions: new Float32Array(lines),
     colors: new Float32Array(lineColors),
     fields: new Float32Array(lineFields),
+    algos: new Float32Array(lineAlgos),
     count: lines.length / 3,
   };
 }
@@ -183,8 +187,10 @@ const POINT_VS = `
 attribute vec3 aPos;
 attribute vec3 aColor;
 attribute float aField;
+attribute float aAlgo;
 uniform mat4 uMvp;
-uniform float uActive;
+uniform float uField;
+uniform float uAlgo;
 uniform float uSize;
 varying vec3 vColor;
 varying float vAlpha;
@@ -192,7 +198,12 @@ void main() {
   vec4 p = uMvp * vec4(aPos, 1.0);
   gl_Position = p;
   gl_PointSize = uSize / max(p.w, 0.25);
-  float keep = (uActive < -0.5 || abs(aField - uActive) < 0.5) ? 1.0 : 0.16;
+  float keep = 1.0;
+  if (uAlgo > -0.5) {
+    keep = abs(aAlgo - uAlgo) < 0.5 ? 1.0 : 0.1;
+  } else if (uField > -0.5) {
+    keep = abs(aField - uField) < 0.5 ? 1.0 : 0.16;
+  }
   vColor = aColor;
   vAlpha = keep;
 }`;
@@ -213,13 +224,20 @@ const LINE_VS = `
 attribute vec3 aPos;
 attribute vec3 aColor;
 attribute float aField;
+attribute float aAlgo;
 uniform mat4 uMvp;
-uniform float uActive;
+uniform float uField;
+uniform float uAlgo;
 varying vec3 vColor;
 varying float vAlpha;
 void main() {
   gl_Position = uMvp * vec4(aPos, 1.0);
-  float keep = (uActive < -0.5 || abs(aField - uActive) < 0.5) ? 0.45 : 0.05;
+  float keep = 0.35;
+  if (uAlgo > -0.5) {
+    keep = abs(aAlgo - uAlgo) < 0.5 ? 0.55 : 0.04;
+  } else if (uField > -0.5) {
+    keep = abs(aField - uField) < 0.5 ? 0.45 : 0.05;
+  }
   vColor = aColor;
   vAlpha = keep;
 }`;
@@ -245,10 +263,74 @@ function attrib(gl, location, buffer, size) {
   gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
 }
 
+const FIELD_INDEX = { "eeg-bci": 0, spikes: 1, connectomics: 2 };
+
+function readAlgos() {
+  const node = document.getElementById("algo-data");
+  if (!node) return [];
+  try {
+    const parsed = JSON.parse(node.textContent);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function paintAlgorithms(geometry, algos) {
+  const count = geometry.count;
+  if (!algos.length) {
+    geometry.algos = geometry.fields;
+    return geometry;
+  }
+  const positions = geometry.positions;
+  const algoIndex = new Float32Array(count);
+  const fields = new Float32Array(count);
+  const colors = new Float32Array(count * 3);
+  for (let i = 0; i < count; i += 1) {
+    let best = 0;
+    let bestDistance = Infinity;
+    const x = positions[i * 3];
+    const y = positions[i * 3 + 1];
+    const z = positions[i * 3 + 2];
+    for (let k = 0; k < algos.length; k += 1) {
+      const anchor = algos[k].anchor;
+      const distance =
+        (x - anchor[0]) ** 2 + (y - anchor[1]) ** 2 + (z - anchor[2]) ** 2;
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = k;
+      }
+    }
+    algoIndex[i] = best;
+    const field = FIELD_INDEX[algos[best].field] ?? 2;
+    fields[i] = field;
+    const color = PALETTE[field];
+    colors[i * 3] = color[0];
+    colors[i * 3 + 1] = color[1];
+    colors[i * 3 + 2] = color[2];
+  }
+  geometry.algos = algoIndex;
+  geometry.fields = fields;
+  geometry.colors = colors;
+  return geometry;
+}
+
+function project(mvp, x, y, z, width, height) {
+  const clipX = mvp[0] * x + mvp[4] * y + mvp[8] * z + mvp[12];
+  const clipY = mvp[1] * x + mvp[5] * y + mvp[9] * z + mvp[13];
+  const clipW = mvp[3] * x + mvp[7] * y + mvp[11] * z + mvp[15];
+  if (clipW <= 0.05) return null;
+  return {
+    x: (clipX / clipW) * 0.5 * width + width * 0.5,
+    y: height - ((clipY / clipW) * 0.5 * height + height * 0.5),
+  };
+}
+
 function startCortex(canvas) {
   const gl = canvas.getContext("webgl", { alpha: true, antialias: true });
   if (!gl) return false;
-  const points = cortexGeometry();
+  const algos = readAlgos();
+  const points = paintAlgorithms(cortexGeometry(), algos);
   const edges = nearestEdges(points);
   const pointProg = program(gl, POINT_VS, POINT_FS);
   const lineProg = program(gl, LINE_VS, LINE_FS);
@@ -256,23 +338,28 @@ function startCortex(canvas) {
     pos: upload(gl, points.positions),
     color: upload(gl, points.colors),
     field: upload(gl, points.fields),
+    algo: upload(gl, points.algos),
   };
   const lineBuf = {
     pos: upload(gl, edges.positions),
     color: upload(gl, edges.colors),
     field: upload(gl, edges.fields),
+    algo: upload(gl, edges.algos),
   };
   const pointLoc = {
     pos: gl.getAttribLocation(pointProg, "aPos"),
     color: gl.getAttribLocation(pointProg, "aColor"),
     field: gl.getAttribLocation(pointProg, "aField"),
+    algo: gl.getAttribLocation(pointProg, "aAlgo"),
   };
   const lineLoc = {
     pos: gl.getAttribLocation(lineProg, "aPos"),
     color: gl.getAttribLocation(lineProg, "aColor"),
     field: gl.getAttribLocation(lineProg, "aField"),
+    algo: gl.getAttribLocation(lineProg, "aAlgo"),
   };
-  let active = -1;
+  let activeField = -1;
+  let activeAlgo = -1;
   let yaw = 0.5;
   let pitch = 0.2;
   let dragging = false;
@@ -304,21 +391,97 @@ function startCortex(canvas) {
 
     gl.useProgram(lineProg);
     gl.uniformMatrix4fv(gl.getUniformLocation(lineProg, "uMvp"), false, mvp);
-    gl.uniform1f(gl.getUniformLocation(lineProg, "uActive"), active);
+    gl.uniform1f(gl.getUniformLocation(lineProg, "uField"), activeField);
+    gl.uniform1f(gl.getUniformLocation(lineProg, "uAlgo"), activeAlgo);
     attrib(gl, lineLoc.pos, lineBuf.pos, 3);
     attrib(gl, lineLoc.color, lineBuf.color, 3);
     attrib(gl, lineLoc.field, lineBuf.field, 1);
+    attrib(gl, lineLoc.algo, lineBuf.algo, 1);
     gl.drawArrays(gl.LINES, 0, edges.count);
 
     gl.useProgram(pointProg);
     gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, "uMvp"), false, mvp);
-    gl.uniform1f(gl.getUniformLocation(pointProg, "uActive"), active);
+    gl.uniform1f(gl.getUniformLocation(pointProg, "uField"), activeField);
+    gl.uniform1f(gl.getUniformLocation(pointProg, "uAlgo"), activeAlgo);
     gl.uniform1f(gl.getUniformLocation(pointProg, "uSize"), 18);
     attrib(gl, pointLoc.pos, pointBuf.pos, 3);
     attrib(gl, pointLoc.color, pointBuf.color, 3);
     attrib(gl, pointLoc.field, pointBuf.field, 1);
+    attrib(gl, pointLoc.algo, pointBuf.algo, 1);
     gl.drawArrays(gl.POINTS, 0, points.count);
+    placeLabels(mvp);
     requestAnimationFrame(frame);
+  }
+
+  const labelLayer = document.getElementById("algo-labels");
+  const labelButtons = algos.map((algo, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "algo-label";
+    button.textContent = algo.name;
+    button.addEventListener("pointerdown", (event) => event.stopPropagation());
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      chooseAlgo(index);
+    });
+    if (labelLayer) labelLayer.append(button);
+    return button;
+  });
+
+  function placeLabels(mvp) {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    labelButtons.forEach((button, index) => {
+      const anchor = algos[index].anchor;
+      const point = project(mvp, anchor[0], anchor[1], anchor[2], width, height);
+      if (!point) {
+        button.style.display = "none";
+        return;
+      }
+      button.style.display = "block";
+      button.style.left = `${canvas.offsetLeft + point.x}px`;
+      button.style.top = `${canvas.offsetTop + point.y}px`;
+    });
+  }
+
+  function showAlgo(algo) {
+    const card = document.getElementById("algo-card");
+    if (!card) return;
+    card.replaceChildren();
+    if (!algo) {
+      card.hidden = true;
+      return;
+    }
+    card.hidden = false;
+    const kicker = document.createElement("p");
+    kicker.className = "kicker";
+    kicker.textContent = algo.implemented ? "In this repository" : "Reference algorithm";
+    const title = document.createElement("h2");
+    title.textContent = algo.name;
+    const summary = document.createElement("p");
+    summary.textContent = algo.summary;
+    const use = document.createElement("p");
+    use.textContent = algo.use_when;
+    card.append(kicker, title, summary, use);
+    if (algo.command) {
+      const command = document.createElement("code");
+      command.textContent = algo.command;
+      card.append(command);
+    }
+  }
+
+  function chooseAlgo(index) {
+    activeAlgo = index;
+    activeField = -1;
+    showAlgo(algos[index]);
+    labelButtons.forEach((button, buttonIndex) => {
+      button.setAttribute("aria-pressed", buttonIndex === index ? "true" : "false");
+    });
+    document.querySelectorAll("[data-field]").forEach((button) => {
+      button.setAttribute("aria-pressed", "false");
+    });
+    const select = document.getElementById("algo-select");
+    if (select) select.value = algos[index].slug;
   }
 
   canvas.addEventListener("pointerdown", (event) => {
@@ -340,13 +503,51 @@ function startCortex(canvas) {
   });
 
   const hud = document.getElementById("hud");
-  if (hud) hud.textContent = `${points.count} sites. Drag to orbit. Pick a field to dim the others.`;
+  if (hud) {
+    hud.textContent = `${points.count} sites. Drag to orbit. Pick an algorithm label.`;
+  }
+
+  const select = document.getElementById("algo-select");
+  if (select) {
+    algos.forEach((algo) => {
+      const option = document.createElement("option");
+      option.value = algo.slug;
+      option.textContent = algo.name;
+      select.append(option);
+    });
+    select.addEventListener("change", () => {
+      const index = algos.findIndex((algo) => algo.slug === select.value);
+      if (index < 0) {
+        activeAlgo = -1;
+        activeField = -1;
+        showAlgo(null);
+        labelButtons.forEach((button) => button.setAttribute("aria-pressed", "false"));
+        return;
+      }
+      chooseAlgo(index);
+      canvas.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+    });
+  }
+
+  document.querySelectorAll("[data-algo]").forEach((card) => {
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("a")) return;
+      const index = algos.findIndex((algo) => algo.slug === card.getAttribute("data-algo"));
+      if (index >= 0) {
+        chooseAlgo(index);
+        canvas.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+      }
+    });
+  });
 
   document.querySelectorAll("[data-field]").forEach((button) => {
     button.addEventListener("click", () => {
       const slug = button.getAttribute("data-field");
-      const map = { "eeg-bci": 0, spikes: 1, connectomics: 2 };
-      active = slug === "all" || !(slug in map) ? -1 : map[slug];
+      activeField = slug === "all" || !(slug in FIELD_INDEX) ? -1 : FIELD_INDEX[slug];
+      activeAlgo = -1;
+      showAlgo(null);
+      if (select) select.value = "";
+      labelButtons.forEach((label) => label.setAttribute("aria-pressed", "false"));
       document.querySelectorAll("[data-field]").forEach((other) => {
         other.setAttribute("aria-pressed", other === button ? "true" : "false");
       });

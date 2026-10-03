@@ -210,7 +210,6 @@ canvas { width: 100%; height: 100%; display: block; }
   color: var(--muted);
 }
 
-.is-hidden { display: none; }
 
 footer {
   padding: 2.5rem 0 3rem;
@@ -218,12 +217,123 @@ footer {
   font-size: 0.95rem;
 }
 
+.band { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; padding: 2.4rem 0 0.4rem; }
+
+.band h2 { font-size: clamp(2rem, 4vw, 3rem); margin: 0.3rem 0 0.6rem; }
+
+.steps { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.7rem; }
+
+.steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem 1rem;
+  align-items: start;
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 0.9rem 1rem;
+}
+
+.steps li::before {
+  content: counter(step);
+  counter-increment: step;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: var(--eeg);
+  border: 1px solid var(--eeg);
+  width: 1.8rem;
+  height: 1.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.steps { counter-reset: step; }
+
+.steps h3 { margin: 0; font-size: 1.15rem; }
+
+.datasets { display: grid; gap: 0.7rem; margin-top: 1rem; }
+
+.dataset {
+  display: block;
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--graph);
+  padding: 0.85rem 1rem;
+}
+
+.dataset h3 { margin: 0.25rem 0; }
+
+.algo-labels { position: absolute; inset: 0; pointer-events: none; }
+
+.algo-label {
+  position: absolute;
+  transform: translate(-50%, -130%);
+  pointer-events: auto;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.72rem;
+  color: var(--ink);
+  background: rgba(16, 20, 15, 0.82);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  white-space: nowrap;
+}
+
+.algo-label[aria-pressed="true"] { border-color: var(--eeg); color: var(--eeg); }
+
+.algo-card {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 2.1rem;
+  width: min(280px, 48%);
+  background: rgba(16, 20, 15, 0.92);
+  border: 1px solid var(--line);
+  padding: 0.75rem 0.85rem;
+  z-index: 2;
+}
+
+.algo-card h2 { margin: 0.2rem 0 0.4rem; font-size: 1.25rem; }
+
+.algo-card p { margin: 0.35rem 0; font-size: 0.92rem; line-height: 1.4; }
+
+.algo-pick { display: none; margin: 0.8rem 0; }
+
+.algo-pick span {
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.algo-pick select {
+  width: 100%;
+  max-width: 22rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.6rem;
+}
+
+.top nav { flex-wrap: wrap; justify-content: flex-end; }
+
 @media (max-width: 800px) {
   .hero { grid-template-columns: 1fr; min-height: 0; }
-  .stage { order: -1; height: 360px; }
+  .stage { order: -1; height: 420px; }
   .legend { flex-wrap: wrap; }
+  .algo-labels { display: none; }
+  .algo-pick { display: block; }
+  .algo-card { position: static; width: auto; margin: 0.6rem; }
+  .steps li { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+.is-hidden { display: none !important; }
+
+.algo { cursor: pointer; }
