@@ -98,6 +98,7 @@ describe("AtlasPage", () => {
       "https://neuralink.com/technology/",
     );
     expect(screen.getByText(/not a procedure/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Library" }));
     expect(screen.getByRole("heading", { name: "Start here." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "What we add later." })).toBeInTheDocument();
     expect(screen.getByText("Train on a local BIDS recording")).toBeInTheDocument();
@@ -113,6 +114,7 @@ describe("AtlasPage", () => {
     renderAtlas();
     fireEvent.click(screen.getByRole("button", { name: /Endovascular stent/ }));
     expect(screen.getByText(/superior sagittal sinus/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Library" }));
     fireEvent.change(screen.getByPlaceholderText("CSP, DANDI, LFADS"), {
       target: { value: "latency" },
     });

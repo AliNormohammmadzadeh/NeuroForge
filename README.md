@@ -36,7 +36,7 @@ pnpm --dir apps/web install
 pnpm --dir apps/web dev
 ```
 
-Open `http://127.0.0.1:5173`. The atlas is a React app. The first scene is a React Three Fiber cutaway of where each electrode sits: scalp EEG, a surface film, an endovascular stent, a rigid microarray, Neuralink's threads, and Paradromics' array. The stippled cortex below it is the algorithm map. The page reads `/api/v1/fields`, `/api/v1/algorithms`, and `/api/v1/models`. `pnpm --dir apps/web build` writes `apps/web/dist`, and the API serves that build at `http://127.0.0.1:8000`. The broader Next.js explorer in the design notes below is still a design note.
+Open `http://127.0.0.1:5173`. The atlas is a React app, and the page is one React Three Fiber scene. Interfaces is the cutaway of where each electrode sits: scalp EEG, a surface film, an endovascular stent, a rigid microarray, Neuralink's threads, and Paradromics' array. Atlas is the stippled algorithm map. Library holds the roadmap, the later list, datasets, models, and papers. The page reads `/api/v1/fields`, `/api/v1/algorithms`, and `/api/v1/models`. `pnpm --dir apps/web build` writes `apps/web/dist`, and the API serves that build at `http://127.0.0.1:8000`. The broader Next.js explorer in the design notes below is still a design note.
 
 What we add later, and have not built:
 
