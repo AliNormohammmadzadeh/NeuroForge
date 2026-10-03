@@ -8,6 +8,9 @@ import type { AtlasData, CortexSelection } from "./types";
 const CortexView = lazy(() =>
   import("./cortex/CortexView").then((module) => ({ default: module.CortexView })),
 );
+const CutawayView = lazy(() =>
+  import("./interfaces/CutawayView").then((module) => ({ default: module.CutawayView })),
+);
 
 export function App() {
   const [data, setData] = useState<AtlasData | null>(null);
@@ -59,6 +62,15 @@ export function App() {
         >
           <Suspense fallback={<p className="hud">Loading the cortex.</p>}>
             <CortexView {...props} />
+          </Suspense>
+        </CortexBoundary>
+      )}
+      renderCutaway={(slug) => (
+        <CortexBoundary
+          fallback={<p className="hud">The cutaway did not start. The notes below still work.</p>}
+        >
+          <Suspense fallback={<p className="hud">Loading the cutaway.</p>}>
+            <CutawayView slug={slug} />
           </Suspense>
         </CortexBoundary>
       )}

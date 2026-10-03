@@ -68,6 +68,16 @@ const data: AtlasData = {
   ],
 };
 
+function renderAtlas() {
+  return render(
+    <AtlasPage
+      data={data}
+      renderCortex={() => <div aria-label="cortex stub" />}
+      renderCutaway={() => <div aria-label="cutaway stub" />}
+    />,
+  );
+}
+
 function datasetLink(): HTMLElement {
   const link = screen.getAllByRole("link").find((item) => {
     return (
@@ -81,7 +91,13 @@ function datasetLink(): HTMLElement {
 
 describe("AtlasPage", () => {
   it("shows the roadmap, a dataset link, and the model usage note", () => {
-    render(<AtlasPage data={data} renderCortex={() => <div aria-label="cortex stub" />} />);
+    renderAtlas();
+    expect(screen.getByRole("heading", { name: /Flexible threads/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Neuralink" })).toHaveAttribute(
+      "href",
+      "https://neuralink.com/technology/",
+    );
+    expect(screen.getByText(/not a procedure/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Start here." })).toBeInTheDocument();
     expect(screen.getAllByText(/neuroforge demo/).length).toBeGreaterThan(0);
     expect(datasetLink()).toHaveAttribute("href", "https://moabb.neurotechx.com/docs/index.html");
@@ -91,7 +107,9 @@ describe("AtlasPage", () => {
   });
 
   it("filters cards and selects an algorithm without leaving the page", () => {
-    render(<AtlasPage data={data} renderCortex={() => <div aria-label="cortex stub" />} />);
+    renderAtlas();
+    fireEvent.click(screen.getByRole("button", { name: /Endovascular stent/ }));
+    expect(screen.getByText(/superior sagittal sinus/)).toBeInTheDocument();
     fireEvent.change(screen.getByPlaceholderText("CSP, DANDI, LFADS"), {
       target: { value: "latency" },
     });
